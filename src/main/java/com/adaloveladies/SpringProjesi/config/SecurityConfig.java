@@ -13,9 +13,9 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // Güncel kullanım şekli
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/api/public/").permitAll()
+                        .requestMatchers("/api/auth/**").permitAll() // <-- tüm auth endpoint'leri açık
                         .anyRequest().authenticated()
                 );
 
