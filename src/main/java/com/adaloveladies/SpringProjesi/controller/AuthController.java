@@ -1,19 +1,27 @@
 package com.adaloveladies.SpringProjesi.controller;
 
 import com.adaloveladies.SpringProjesi.model.User;
-import com.adaloveladies.SpringProjesi.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.adaloveladies.SpringProjesi.service.AuthenticationService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
+@RequiredArgsConstructor
 public class AuthController {
 
-    @Autowired
-    private UserService userService;
+    private final AuthenticationService authenticationService;
 
     @PostMapping("/register")
-    public String register(@RequestBody User user) {
-        return userService.registerUser(user);
+    public ResponseEntity<String> register(@RequestBody User user) {
+        String result = authenticationService.register(user);
+        return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody User user) {
+        String result = authenticationService.authenticate(user.getUsername(), user.getPassword());
+        return ResponseEntity.ok(result);
     }
 }
