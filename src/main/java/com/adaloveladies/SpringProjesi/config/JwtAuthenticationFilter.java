@@ -5,6 +5,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,6 +20,8 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
+    private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
+
     private final JwtService jwtService;
     private final CustomUserDetailsService userDetailsService;
 
@@ -26,9 +30,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
-        String path = request.getServletPath();
-        // Public endpoint'ler için JWT kontrolü yapılmaz
-        if (path.startsWith("/api/auth")) {
+        String requestPath = request.getServletPath();
+
+        // Yetkisiz (public) endpoint'ler JWT doğrulamasından muaf tutulur
+        if (requestPath.startsWith("/api/auth")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -36,30 +41,37 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String authHeader = request.getHeader("Authorization");
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            System.out.println("Authorization header is missing or invalid.");
+            logger.warn("Authorization header is missing or does not start with Bearer.");
             filterChain.doFilter(request, response);
             return;
         }
 
         final String token = authHeader.substring(7);
-        final String username = jwtService.extractUsername(token);
+
+        String username;
+        try {
+            username = jwtService.extractUsername(token);
+        } catch (Exception e) {
+            logger.error("Token parsing failed: {}", e.getMessage());
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            System.out.println("Token found. Validating...");
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
             if (jwtService.isTokenValid(token, userDetails)) {
-                System.out.println("Token is valid. Authenticating user...");
+                logger.info("Token is valid. Authenticating user: {}", username);
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities()
                 );
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             } else {
-                System.out.println("Invalid token.");
+                logger.warn("Invalid JWT token for user: {}", username);
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                return;
             }
-        } else {
-            System.out.println("Username is null or authentication already exists.");
         }
 
         filterChain.doFilter(request, response);
