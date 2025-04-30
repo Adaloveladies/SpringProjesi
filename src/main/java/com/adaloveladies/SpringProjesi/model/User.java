@@ -1,53 +1,52 @@
 package com.adaloveladies.SpringProjesi.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
+import java.util.Collections;
 
 @Entity
-@Table(name = "app_user") // "user" yerine tablo adı değiştirildi
-public class User {
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String username;
-    private String email;
+
     private String password;
 
-    // Getter ve Setter'lar
-    public Long getId() {
-        return id;
+    // UserDetails metotları:
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        // Eğer kullanıcıya roller eklemek istersen, burada ilgili authorities dönebilirsin
+        return Collections.emptyList(); // Şu an için boş, fakat ileride roller ekleyebilirsin
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    @Override
+    public boolean isAccountNonExpired() {
+        return true; // Hesap süresi dolmuşsa false dönebilirsin
     }
 
-    public String getUsername() {
-        return username;
+    @Override
+    public boolean isAccountNonLocked() {
+        return true; // Hesap kilitliyse false dönebilirsin
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true; // Şifre süresi dolmuşsa false dönebilirsin
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
+    @Override
+    public boolean isEnabled() {
+        return true; // Hesap etkin değilse false dönebilirsin
     }
 }
