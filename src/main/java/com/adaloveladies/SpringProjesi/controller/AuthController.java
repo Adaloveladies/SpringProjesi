@@ -21,6 +21,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody User user) {
+        System.out.println("Login endpoint'e istek geldi"); // TEST için eklendi
         String result = authenticationService.authenticate(user.getUsername(), user.getPassword());
         return ResponseEntity.ok(result);
     }
