@@ -27,7 +27,7 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/api/auth/***").permitAll() // Tüm /api/auth/* endpoint'lerine izin ver
+                        .requestMatchers("/api/auth/").permitAll() // Tüm /api/auth/ endpoint'lerine izin ver
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
