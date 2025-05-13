@@ -7,21 +7,40 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
+/**
+ * Kullanıcı modeli
+ */
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(name = "users")
 public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, unique = true)
     private String username;
 
+    @Column(nullable = false)
     private String password;
+
+    @Column(nullable = false, unique = true)
+    private String email;
+
+    @Column(name = "score", nullable = false)
+    private Integer score = 0; // Kullanıcının puanı
+
+    @Column(name = "level", nullable = false)
+    private Integer level = 1; // Kullanıcının seviyesi
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Task> tasks;
 
     // UserDetails metotları:
     @Override
