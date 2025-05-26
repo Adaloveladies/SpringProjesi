@@ -30,12 +30,33 @@ public class Building {
     private Integer requiredLevel;
 
     @Column(nullable = false)
+    private Integer floorCount;
+
+    @Column(nullable = false)
+    private Integer dailyCompletedTasks;
+
+    @Column(nullable = false)
     private Boolean isCompleted;
 
-    @Column(name = "completed_at")
+    @Column(nullable = false)
+    private Boolean hasRoof;
+
+    @Column
     private LocalDateTime completedAt;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    public Integer getRequiredLevel() {
+        return requiredLevel;
+    }
+
+    public void setIsCompleted(Boolean isCompleted) {
+        this.isCompleted = isCompleted;
+    }
+
+    public void setCompletedAt(LocalDateTime completedAt) {
+        this.completedAt = completedAt;
+    }
 } 

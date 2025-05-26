@@ -12,4 +12,6 @@ public interface BuildingRepository extends JpaRepository<Building, Long> {
     List<Building> findByUserOrderByRequiredLevelAsc(User user);
     List<Building> findByUserAndIsCompletedFalseOrderByRequiredLevelAsc(User user);
     Building findFirstByUserAndIsCompletedFalseOrderByRequiredLevelAsc(User user);
+    Building findFirstByUserAndIsCompletedFalseOrderByIdDesc(User user);
+    int countByUserAndIsCompletedTrue(User user);
 } 

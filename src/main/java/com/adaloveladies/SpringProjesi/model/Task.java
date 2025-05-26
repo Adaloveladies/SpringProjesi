@@ -12,12 +12,12 @@ import java.time.LocalDateTime;
  * Görev modeli
  * Kullanıcıların oluşturduğu görevleri temsil eder
  */
+@Entity
+@Table(name = "tasks")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
-@Table(name = "tasks")
 public class Task {
 
     @Id
@@ -27,21 +27,22 @@ public class Task {
     @Column(nullable = false)
     private String title; // Görev başlığı
 
-    @Column(length = 1000)
+    @Column(nullable = false)
     private String description; // Görev açıklaması
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TaskStatus status; // Görev durumu
 
-    @Column(nullable = false)
-    private LocalDateTime createdAt; // Oluşturulma tarihi
-
-    private LocalDateTime completedAt; // Tamamlanma tarihi
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user; // Görevi oluşturan kullanıcı
+
+    @Column(nullable = false)
+    private LocalDateTime createdAt; // Oluşturulma tarihi
+
+    @Column
+    private LocalDateTime completedAt; // Tamamlanma tarihi
 
     /**
      * Görev oluşturulduğunda otomatik olarak tarih atar

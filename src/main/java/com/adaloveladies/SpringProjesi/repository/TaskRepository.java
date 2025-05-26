@@ -54,4 +54,8 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
         LocalDateTime startDate,
         LocalDateTime endDate
     );
+
+    int countByUserAndStatus(User user, TaskStatus status);
+
+    List<Task> findByUserAndTitleContainingIgnoreCaseOrderByCreatedAtDesc(User user, String searchTerm);
 } 

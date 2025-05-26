@@ -3,21 +3,21 @@ package com.adaloveladies.SpringProjesi.model;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 /**
  * Kullanıcı modeli
  */
 @Entity
+@Table(name = "users")
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-@Table(name = "users")
 public class User implements UserDetails {
 
     @Id
@@ -30,42 +30,51 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
+    private Integer level;
+
+    @Column(nullable = false)
+    private Integer score;
+
+    @Column(unique = true)
     private String email;
 
-    @Column(name = "score", nullable = false)
-    private Integer score = 0; // Kullanıcının puanı
-
-    @Column(name = "level", nullable = false)
-    private Integer level = 1; // Kullanıcının seviyesi
+    private Integer completedBuildings;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Task> tasks;
 
+    public void setLevel(Integer level) {
+        this.level = level;
+    }
+
+    public void setScore(Integer score) {
+        this.score = score;
+    }
+
     // UserDetails metotları:
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // Eğer kullanıcıya roller eklemek istersen, burada ilgili authorities dönebilirsin
-        return Collections.emptyList(); // Şu an için boş, fakat ileride roller ekleyebilirsin
+        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
     }
 
     @Override
     public boolean isAccountNonExpired() {
-        return true; // Hesap süresi dolmuşsa false dönebilirsin
+        return true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return true; // Hesap kilitliyse false dönebilirsin
+        return true;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return true; // Şifre süresi dolmuşsa false dönebilirsin
+        return true;
     }
 
     @Override
     public boolean isEnabled() {
-        return true; // Hesap etkin değilse false dönebilirsin
+        return true;
     }
 }

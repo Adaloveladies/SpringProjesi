@@ -1,5 +1,7 @@
-package com.adaloveladies.SpringProjesi.security;
+package com.adaloveladies.SpringProjesi.config;
 
+import com.adaloveladies.SpringProjesi.security.JwtService;
+import com.adaloveladies.SpringProjesi.security.CustomUserDetailsService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -33,7 +35,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String requestPath = request.getServletPath();
 
         // Yetkisiz (public) endpoint'ler JWT doğrulamasından muaf tutulur
-        if (requestPath.startsWith("/api/auth")) {
+        if (requestPath.startsWith("/api/auth") || requestPath.startsWith("/swagger-ui") || requestPath.startsWith("/v3/api-docs")) {
             filterChain.doFilter(request, response);
             return;
         }
