@@ -32,7 +32,8 @@ public class TaskService {
     // Puan hesaplama sabitleri
     private static final int BASE_POINTS = 10; // Temel puan
     private static final int LEVEL_UP_THRESHOLD = 50; // Seviye atlama eşiği (50 puan = 1 seviye)
-    private static final int DAILY_TASK_LIMIT = 10; // Günlük görev limiti
+    private static final int DAILY_TASK_LIMIT = 20; // Günlük görev limiti
+    private static final int MAX_FLOORS_PER_BUILDING = 10; // Bina başına maksimum kat sayısı
 
     /**
      * TaskRequestDTO'yu Task modeline dönüştürür
@@ -223,10 +224,77 @@ public class TaskService {
      * Görevlerde arama yapar
      */
     public List<TaskResponseDTO> searchTasks(User user, String searchTerm) {
-        return taskRepository.findByUserAndTitleContainingOrDescriptionContaining(
-                user, searchTerm, searchTerm)
+        return taskRepository.findByUserAndTitleContainingIgnoreCaseOrderByCreatedAtDesc(user, searchTerm)
                 .stream()
                 .map(this::convertToResponseDTO)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    private void updateBuildingProgress(User user) {
+        // Günlük tamamlanan görev sayısını al
+        LocalDate today = LocalDate.now();
+        long completedTasksToday = taskRepository.countByUserAndStatusAndCompletedAtBetween(
+            user, 
+            TaskStatus.TAMAMLANDI,
+            today.atStartOfDay(),
+            today.plusDays(1).atStartOfDay()
+        );
+
+        // Aktif binayı bul (tamamlanmamış ve en son oluşturulan)
+        Building activeBuilding = buildingRepository.findFirstByUserAndIsCompletedFalseOrderByIdDesc(user);
+        
+        if (activeBuilding == null) {
+            // Yeni bina oluştur
+            activeBuilding = Building.builder()
+                    .name("Yeni Bina")
+                    .description("Yeni inşa edilen bina")
+                    .requiredLevel(1)
+                    .floorCount(0)
+                    .dailyCompletedTasks(0)
+                    .isCompleted(false)
+                    .hasRoof(false)
+                    .user(user)
+                    .build();
+            activeBuilding = buildingRepository.save(activeBuilding);
+        }
+
+        // Günlük tamamlanan görev sayısını artır
+        activeBuilding.setDailyCompletedTasks((int) completedTasksToday);
+
+        // Kat sayısını artır
+        activeBuilding.setFloorCount(activeBuilding.getFloorCount() + 1);
+
+        // Eğer bina 10 kata ulaştıysa
+        if (activeBuilding.getFloorCount() >= MAX_FLOORS_PER_BUILDING) {
+            // Binayı tamamla ve çatı ekle
+            activeBuilding.setIsCompleted(true);
+            activeBuilding.setHasRoof(true);
+            activeBuilding.setCompletedAt(LocalDateTime.now());
+            
+            // Eğer hala tamamlanmamış görevler varsa, yeni bir bina başlat
+            if (completedTasksToday < DAILY_TASK_LIMIT) {
+                Building newBuilding = Building.builder()
+                        .name("Yeni Bina")
+                        .description("Yeni inşa edilen bina")
+                        .requiredLevel(activeBuilding.getRequiredLevel() + 1)
+                        .floorCount(0)
+                        .dailyCompletedTasks((int) completedTasksToday)
+                        .isCompleted(false)
+                        .hasRoof(false)
+                        .user(user)
+                        .build();
+                buildingRepository.save(newBuilding);
+            }
+        }
+        // Eğer günlük görevler tamamlandıysa ve bina 10 kata ulaşmadıysa
+        else if (completedTasksToday >= DAILY_TASK_LIMIT) {
+            // Binayı tamamla ve çatı ekle
+            activeBuilding.setIsCompleted(true);
+            activeBuilding.setHasRoof(true);
+            activeBuilding.setCompletedAt(LocalDateTime.now());
+        }
+
+        buildingRepository.save(activeBuilding);
     }
 } 

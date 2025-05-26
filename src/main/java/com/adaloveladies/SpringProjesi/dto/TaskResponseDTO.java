@@ -23,5 +23,5 @@ public class TaskResponseDTO {
     private LocalDateTime createdAt;
     private LocalDateTime completedAt;
     private Long userId;
-    private String username; // Kullanıcı adı
+    private String username;
 } 

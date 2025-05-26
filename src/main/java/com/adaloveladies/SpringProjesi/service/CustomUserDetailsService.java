@@ -1,4 +1,4 @@
-package com.adaloveladies.SpringProjesi.security;
+package com.adaloveladies.SpringProjesi.service;
 
 import com.adaloveladies.SpringProjesi.model.User;
 import com.adaloveladies.SpringProjesi.repository.UserRepository;

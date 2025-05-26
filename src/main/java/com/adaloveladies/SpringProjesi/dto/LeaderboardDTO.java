@@ -5,17 +5,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * Kullanıcı bilgilerini döndürmek için DTO
- */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserResponseDTO {
+public class LeaderboardDTO {
     private Long id;
     private String username;
-    private Integer level;
     private Integer score;
+    private Integer level;
     private Integer completedBuildings;
 } 

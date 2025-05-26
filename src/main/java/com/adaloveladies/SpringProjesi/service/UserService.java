@@ -5,20 +5,35 @@ import com.adaloveladies.SpringProjesi.dto.UserResponseDTO;
 import com.adaloveladies.SpringProjesi.model.User;
 import com.adaloveladies.SpringProjesi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Kullanıcı işlemlerini yöneten servis
  */
 @Service
 @RequiredArgsConstructor
-public class UserService {
+public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
-    private final BCryptPasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Kullanıcı bulunamadı: " + username));
+    }
+
+    public User findByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Kullanıcı bulunamadı: " + username));
+    }
 
     /**
      * Kullanıcı girişini doğrular
@@ -40,15 +55,15 @@ public class UserService {
      * Yeni kullanıcı kaydı oluşturur
      */
     public UserResponseDTO registerUser(UserRequestDTO request) {
-        if (userExists(request.getUsername())) {
+        if (userRepository.existsByUsername(request.getUsername())) {
             throw new RuntimeException("Bu kullanıcı adı zaten kullanılıyor");
         }
 
         User user = User.builder()
                 .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .score(0)
                 .level(1)
+                .score(0)
                 .build();
 
         User savedUser = userRepository.save(user);
@@ -61,7 +76,7 @@ public class UserService {
     public List<UserResponseDTO> getAllUsers() {
         return userRepository.findAll().stream()
                 .map(this::convertToResponseDTO)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     /**
@@ -80,8 +95,8 @@ public class UserService {
         return UserResponseDTO.builder()
                 .id(user.getId())
                 .username(user.getUsername())
-                .score(user.getScore())
                 .level(user.getLevel())
+                .score(user.getScore())
                 .build();
     }
 }

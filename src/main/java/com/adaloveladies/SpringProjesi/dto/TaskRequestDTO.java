@@ -2,7 +2,7 @@ package com.adaloveladies.SpringProjesi.dto;
 
 import com.adaloveladies.SpringProjesi.model.TaskStatus;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,12 +17,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class TaskRequestDTO {
 
-    @NotBlank(message = "Görev başlığı boş olamaz")
-    @Size(min = 3, max = 100, message = "Görev başlığı 3-100 karakter arasında olmalıdır")
+    @NotBlank(message = "Başlık boş olamaz")
     private String title;
 
-    @Size(max = 1000, message = "Görev açıklaması en fazla 1000 karakter olabilir")
+    @NotBlank(message = "Açıklama boş olamaz")
     private String description;
 
+    @NotNull(message = "Durum boş olamaz")
     private TaskStatus status;
 } 

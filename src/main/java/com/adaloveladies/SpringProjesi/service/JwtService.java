@@ -1,4 +1,4 @@
-package com.adaloveladies.SpringProjesi.security;
+package com.adaloveladies.SpringProjesi.service;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
