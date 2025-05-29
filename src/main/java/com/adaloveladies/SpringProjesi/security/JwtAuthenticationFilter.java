@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -23,7 +24,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
     private final JwtService jwtService;
-    private final CustomUserDetailsService userDetailsService;
+    private final UserDetailsService userDetailsService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -39,6 +40,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         final String authHeader = request.getHeader("Authorization");
+        final String jwt;
+        final String userEmail;
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             logger.warn("Authorization header is missing or does not start with Bearer.");
@@ -46,29 +49,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        final String token = authHeader.substring(7);
+        jwt = authHeader.substring(7);
+        userEmail = jwtService.extractUsername(jwt);
 
-        String username;
-        try {
-            username = jwtService.extractUsername(token);
-        } catch (Exception e) {
-            logger.error("Token parsing failed: {}", e.getMessage());
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            return;
-        }
-
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-
-            if (jwtService.isTokenValid(token, userDetails)) {
-                logger.info("Token is valid. Authenticating user: {}", username);
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                        userDetails, null, userDetails.getAuthorities()
+        if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
+            
+            if (jwtService.isTokenValid(jwt, userDetails)) {
+                logger.info("Token is valid. Authenticating user: {}", userEmail);
+                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                        userDetails,
+                        null,
+                        userDetails.getAuthorities()
                 );
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authToken);
             } else {
-                logger.warn("Invalid JWT token for user: {}", username);
+                logger.warn("Invalid JWT token for user: {}", userEmail);
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 return;
             }
