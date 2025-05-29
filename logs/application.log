@@ -36,3 +36,189 @@ Caused by: org.springframework.context.annotation.ConflictingBeanDefinitionExcep
 	at org.springframework.context.annotation.ConfigurationClassParser.parse(ConfigurationClassParser.java:172) ~[spring-context-6.2.5.jar:6.2.5]
 	... 18 common frames omitted
 
+2025-05-29T16:36:18.213+03:00  INFO 29900 --- [SpringProjesi] [main] c.a.S.SpringProjesiApplication           : Starting SpringProjesiApplication using Java 17.0.12 with PID 29900 (C:\Users\demir\Downloads\SpringProjesi-main (1)\SpringProjesi-3\target\classes started by demir in C:\Users\demir\Downloads\SpringProjesi-main (1)\SpringProjesi-3)
+2025-05-29T16:36:18.214+03:00 DEBUG 29900 --- [SpringProjesi] [main] c.a.S.SpringProjesiApplication           : Running with Spring Boot v3.2.3, Spring v6.1.4
+2025-05-29T16:36:18.215+03:00  INFO 29900 --- [SpringProjesi] [main] c.a.S.SpringProjesiApplication           : No active profile set, falling back to 1 default profile: "default"
+2025-05-29T16:36:18.453+03:00  WARN 29900 --- [SpringProjesi] [main] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanDefinitionStoreException: Failed to parse configuration class [com.adaloveladies.SpringProjesi.SpringProjesiApplication]
+2025-05-29T16:36:18.581+03:00 ERROR 29900 --- [SpringProjesi] [main] o.s.boot.SpringApplication               : Application run failed
+
+org.springframework.beans.factory.BeanDefinitionStoreException: Failed to parse configuration class [com.adaloveladies.SpringProjesi.SpringProjesiApplication]
+	at org.springframework.context.annotation.ConfigurationClassParser.parse(ConfigurationClassParser.java:179) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.annotation.ConfigurationClassPostProcessor.processConfigBeanDefinitions(ConfigurationClassPostProcessor.java:416) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.annotation.ConfigurationClassPostProcessor.postProcessBeanDefinitionRegistry(ConfigurationClassPostProcessor.java:289) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.support.PostProcessorRegistrationDelegate.invokeBeanDefinitionRegistryPostProcessors(PostProcessorRegistrationDelegate.java:349) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.support.PostProcessorRegistrationDelegate.invokeBeanFactoryPostProcessors(PostProcessorRegistrationDelegate.java:118) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.support.AbstractApplicationContext.invokeBeanFactoryPostProcessors(AbstractApplicationContext.java:788) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:606) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:146) ~[spring-boot-3.2.3.jar:3.2.3]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:754) ~[spring-boot-3.2.3.jar:3.2.3]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:456) ~[spring-boot-3.2.3.jar:3.2.3]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:334) ~[spring-boot-3.2.3.jar:3.2.3]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354) ~[spring-boot-3.2.3.jar:3.2.3]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1343) ~[spring-boot-3.2.3.jar:3.2.3]
+	at com.adaloveladies.SpringProjesi.SpringProjesiApplication.main(SpringProjesiApplication.java:10) ~[classes/:na]
+Caused by: org.springframework.context.annotation.ConflictingBeanDefinitionException: Annotation-specified bean name 'jwtAuthenticationFilter' for bean class [com.adaloveladies.SpringProjesi.security.JwtAuthenticationFilter] conflicts with existing, non-compatible bean definition of same name and class [com.adaloveladies.SpringProjesi.config.JwtAuthenticationFilter]
+	at org.springframework.context.annotation.ClassPathBeanDefinitionScanner.checkCandidate(ClassPathBeanDefinitionScanner.java:361) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.annotation.ClassPathBeanDefinitionScanner.doScan(ClassPathBeanDefinitionScanner.java:288) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.annotation.ComponentScanAnnotationParser.parse(ComponentScanAnnotationParser.java:128) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.annotation.ConfigurationClassParser.doProcessConfigurationClass(ConfigurationClassParser.java:306) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.annotation.ConfigurationClassParser.processConfigurationClass(ConfigurationClassParser.java:246) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.annotation.ConfigurationClassParser.parse(ConfigurationClassParser.java:197) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.annotation.ConfigurationClassParser.parse(ConfigurationClassParser.java:165) ~[spring-context-6.1.4.jar:6.1.4]
+	... 13 common frames omitted
+
+2025-05-29T16:36:55.472+03:00  INFO 10216 --- [SpringProjesi] [main] c.a.S.SpringProjesiApplication           : Starting SpringProjesiApplication using Java 17.0.12 with PID 10216 (C:\Users\demir\Downloads\SpringProjesi-main (1)\SpringProjesi-3\target\classes started by demir in C:\Users\demir\Downloads\SpringProjesi-main (1)\SpringProjesi-3)
+2025-05-29T16:36:55.474+03:00 DEBUG 10216 --- [SpringProjesi] [main] c.a.S.SpringProjesiApplication           : Running with Spring Boot v3.2.3, Spring v6.1.4
+2025-05-29T16:36:55.477+03:00  INFO 10216 --- [SpringProjesi] [main] c.a.S.SpringProjesiApplication           : No active profile set, falling back to 1 default profile: "default"
+2025-05-29T16:36:55.826+03:00  WARN 10216 --- [SpringProjesi] [main] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanDefinitionStoreException: Failed to parse configuration class [com.adaloveladies.SpringProjesi.SpringProjesiApplication]
+2025-05-29T16:36:55.955+03:00 ERROR 10216 --- [SpringProjesi] [main] o.s.boot.SpringApplication               : Application run failed
+
+org.springframework.beans.factory.BeanDefinitionStoreException: Failed to parse configuration class [com.adaloveladies.SpringProjesi.SpringProjesiApplication]
+	at org.springframework.context.annotation.ConfigurationClassParser.parse(ConfigurationClassParser.java:179) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.annotation.ConfigurationClassPostProcessor.processConfigBeanDefinitions(ConfigurationClassPostProcessor.java:416) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.annotation.ConfigurationClassPostProcessor.postProcessBeanDefinitionRegistry(ConfigurationClassPostProcessor.java:289) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.support.PostProcessorRegistrationDelegate.invokeBeanDefinitionRegistryPostProcessors(PostProcessorRegistrationDelegate.java:349) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.support.PostProcessorRegistrationDelegate.invokeBeanFactoryPostProcessors(PostProcessorRegistrationDelegate.java:118) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.support.AbstractApplicationContext.invokeBeanFactoryPostProcessors(AbstractApplicationContext.java:788) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:606) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:146) ~[spring-boot-3.2.3.jar:3.2.3]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:754) ~[spring-boot-3.2.3.jar:3.2.3]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:456) ~[spring-boot-3.2.3.jar:3.2.3]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:334) ~[spring-boot-3.2.3.jar:3.2.3]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354) ~[spring-boot-3.2.3.jar:3.2.3]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1343) ~[spring-boot-3.2.3.jar:3.2.3]
+	at com.adaloveladies.SpringProjesi.SpringProjesiApplication.main(SpringProjesiApplication.java:10) ~[classes/:na]
+Caused by: org.springframework.context.annotation.ConflictingBeanDefinitionException: Annotation-specified bean name 'jwtAuthenticationFilter' for bean class [com.adaloveladies.SpringProjesi.security.JwtAuthenticationFilter] conflicts with existing, non-compatible bean definition of same name and class [com.adaloveladies.SpringProjesi.config.JwtAuthenticationFilter]
+	at org.springframework.context.annotation.ClassPathBeanDefinitionScanner.checkCandidate(ClassPathBeanDefinitionScanner.java:361) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.annotation.ClassPathBeanDefinitionScanner.doScan(ClassPathBeanDefinitionScanner.java:288) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.annotation.ComponentScanAnnotationParser.parse(ComponentScanAnnotationParser.java:128) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.annotation.ConfigurationClassParser.doProcessConfigurationClass(ConfigurationClassParser.java:306) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.annotation.ConfigurationClassParser.processConfigurationClass(ConfigurationClassParser.java:246) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.annotation.ConfigurationClassParser.parse(ConfigurationClassParser.java:197) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.annotation.ConfigurationClassParser.parse(ConfigurationClassParser.java:165) ~[spring-context-6.1.4.jar:6.1.4]
+	... 13 common frames omitted
+
+2025-05-29T19:10:39.501+03:00  INFO 11624 --- [SpringProjesi] [main] c.a.S.SpringProjesiApplication           : Starting SpringProjesiApplication using Java 17.0.12 with PID 11624 (C:\Users\demir\Downloads\SpringProjesi-main (1)\SpringProjesi-3\target\classes started by demir in C:\Users\demir\Downloads\SpringProjesi-main (1)\SpringProjesi-3)
+2025-05-29T19:10:39.503+03:00 DEBUG 11624 --- [SpringProjesi] [main] c.a.S.SpringProjesiApplication           : Running with Spring Boot v3.2.3, Spring v6.1.4
+2025-05-29T19:10:39.505+03:00  INFO 11624 --- [SpringProjesi] [main] c.a.S.SpringProjesiApplication           : No active profile set, falling back to 1 default profile: "default"
+2025-05-29T19:10:39.787+03:00  WARN 11624 --- [SpringProjesi] [main] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanDefinitionStoreException: Failed to parse configuration class [com.adaloveladies.SpringProjesi.SpringProjesiApplication]
+2025-05-29T19:10:39.943+03:00 ERROR 11624 --- [SpringProjesi] [main] o.s.boot.SpringApplication               : Application run failed
+
+org.springframework.beans.factory.BeanDefinitionStoreException: Failed to parse configuration class [com.adaloveladies.SpringProjesi.SpringProjesiApplication]
+	at org.springframework.context.annotation.ConfigurationClassParser.parse(ConfigurationClassParser.java:179) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.annotation.ConfigurationClassPostProcessor.processConfigBeanDefinitions(ConfigurationClassPostProcessor.java:416) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.annotation.ConfigurationClassPostProcessor.postProcessBeanDefinitionRegistry(ConfigurationClassPostProcessor.java:289) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.support.PostProcessorRegistrationDelegate.invokeBeanDefinitionRegistryPostProcessors(PostProcessorRegistrationDelegate.java:349) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.support.PostProcessorRegistrationDelegate.invokeBeanFactoryPostProcessors(PostProcessorRegistrationDelegate.java:118) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.support.AbstractApplicationContext.invokeBeanFactoryPostProcessors(AbstractApplicationContext.java:788) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:606) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:146) ~[spring-boot-3.2.3.jar:3.2.3]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:754) ~[spring-boot-3.2.3.jar:3.2.3]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:456) ~[spring-boot-3.2.3.jar:3.2.3]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:334) ~[spring-boot-3.2.3.jar:3.2.3]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354) ~[spring-boot-3.2.3.jar:3.2.3]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1343) ~[spring-boot-3.2.3.jar:3.2.3]
+	at com.adaloveladies.SpringProjesi.SpringProjesiApplication.main(SpringProjesiApplication.java:10) ~[classes/:na]
+Caused by: org.springframework.context.annotation.ConflictingBeanDefinitionException: Annotation-specified bean name 'jwtAuthenticationFilter' for bean class [com.adaloveladies.SpringProjesi.security.JwtAuthenticationFilter] conflicts with existing, non-compatible bean definition of same name and class [com.adaloveladies.SpringProjesi.config.JwtAuthenticationFilter]
+	at org.springframework.context.annotation.ClassPathBeanDefinitionScanner.checkCandidate(ClassPathBeanDefinitionScanner.java:361) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.annotation.ClassPathBeanDefinitionScanner.doScan(ClassPathBeanDefinitionScanner.java:288) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.annotation.ComponentScanAnnotationParser.parse(ComponentScanAnnotationParser.java:128) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.annotation.ConfigurationClassParser.doProcessConfigurationClass(ConfigurationClassParser.java:306) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.annotation.ConfigurationClassParser.processConfigurationClass(ConfigurationClassParser.java:246) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.annotation.ConfigurationClassParser.parse(ConfigurationClassParser.java:197) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.annotation.ConfigurationClassParser.parse(ConfigurationClassParser.java:165) ~[spring-context-6.1.4.jar:6.1.4]
+	... 13 common frames omitted
+
+2025-05-29T19:14:18.756+03:00  INFO 22524 --- [SpringProjesi] [main] c.a.S.SpringProjesiApplication           : Starting SpringProjesiApplication using Java 17.0.12 with PID 22524 (C:\Users\demir\Downloads\SpringProjesi-main (1)\SpringProjesi-3\target\classes started by demir in C:\Users\demir\Downloads\SpringProjesi-main (1)\SpringProjesi-3)
+2025-05-29T19:14:18.757+03:00 DEBUG 22524 --- [SpringProjesi] [main] c.a.S.SpringProjesiApplication           : Running with Spring Boot v3.2.3, Spring v6.1.4
+2025-05-29T19:14:18.758+03:00  INFO 22524 --- [SpringProjesi] [main] c.a.S.SpringProjesiApplication           : No active profile set, falling back to 1 default profile: "default"
+2025-05-29T19:14:19.082+03:00  WARN 22524 --- [SpringProjesi] [main] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanDefinitionStoreException: Failed to parse configuration class [com.adaloveladies.SpringProjesi.SpringProjesiApplication]
+2025-05-29T19:14:19.237+03:00 ERROR 22524 --- [SpringProjesi] [main] o.s.boot.SpringApplication               : Application run failed
+
+org.springframework.beans.factory.BeanDefinitionStoreException: Failed to parse configuration class [com.adaloveladies.SpringProjesi.SpringProjesiApplication]
+	at org.springframework.context.annotation.ConfigurationClassParser.parse(ConfigurationClassParser.java:179) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.annotation.ConfigurationClassPostProcessor.processConfigBeanDefinitions(ConfigurationClassPostProcessor.java:416) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.annotation.ConfigurationClassPostProcessor.postProcessBeanDefinitionRegistry(ConfigurationClassPostProcessor.java:289) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.support.PostProcessorRegistrationDelegate.invokeBeanDefinitionRegistryPostProcessors(PostProcessorRegistrationDelegate.java:349) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.support.PostProcessorRegistrationDelegate.invokeBeanFactoryPostProcessors(PostProcessorRegistrationDelegate.java:118) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.support.AbstractApplicationContext.invokeBeanFactoryPostProcessors(AbstractApplicationContext.java:788) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:606) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:146) ~[spring-boot-3.2.3.jar:3.2.3]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:754) ~[spring-boot-3.2.3.jar:3.2.3]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:456) ~[spring-boot-3.2.3.jar:3.2.3]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:334) ~[spring-boot-3.2.3.jar:3.2.3]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354) ~[spring-boot-3.2.3.jar:3.2.3]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1343) ~[spring-boot-3.2.3.jar:3.2.3]
+	at com.adaloveladies.SpringProjesi.SpringProjesiApplication.main(SpringProjesiApplication.java:10) ~[classes/:na]
+Caused by: org.springframework.context.annotation.ConflictingBeanDefinitionException: Annotation-specified bean name 'jwtAuthenticationFilter' for bean class [com.adaloveladies.SpringProjesi.security.JwtAuthenticationFilter] conflicts with existing, non-compatible bean definition of same name and class [com.adaloveladies.SpringProjesi.config.JwtAuthenticationFilter]
+	at org.springframework.context.annotation.ClassPathBeanDefinitionScanner.checkCandidate(ClassPathBeanDefinitionScanner.java:361) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.annotation.ClassPathBeanDefinitionScanner.doScan(ClassPathBeanDefinitionScanner.java:288) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.annotation.ComponentScanAnnotationParser.parse(ComponentScanAnnotationParser.java:128) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.annotation.ConfigurationClassParser.doProcessConfigurationClass(ConfigurationClassParser.java:306) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.annotation.ConfigurationClassParser.processConfigurationClass(ConfigurationClassParser.java:246) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.annotation.ConfigurationClassParser.parse(ConfigurationClassParser.java:197) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.annotation.ConfigurationClassParser.parse(ConfigurationClassParser.java:165) ~[spring-context-6.1.4.jar:6.1.4]
+	... 13 common frames omitted
+
+2025-05-29T19:15:01.557+03:00  INFO 28936 --- [SpringProjesi] [main] c.a.S.SpringProjesiApplication           : Starting SpringProjesiApplication using Java 17.0.12 with PID 28936 (C:\Users\demir\Downloads\SpringProjesi-main (1)\SpringProjesi-3\target\classes started by demir in C:\Users\demir\Downloads\SpringProjesi-main (1)\SpringProjesi-3)
+2025-05-29T19:15:01.559+03:00 DEBUG 28936 --- [SpringProjesi] [main] c.a.S.SpringProjesiApplication           : Running with Spring Boot v3.2.3, Spring v6.1.4
+2025-05-29T19:15:01.560+03:00  INFO 28936 --- [SpringProjesi] [main] c.a.S.SpringProjesiApplication           : No active profile set, falling back to 1 default profile: "default"
+2025-05-29T19:15:01.828+03:00  WARN 28936 --- [SpringProjesi] [main] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanDefinitionStoreException: Failed to parse configuration class [com.adaloveladies.SpringProjesi.SpringProjesiApplication]
+2025-05-29T19:15:01.948+03:00 ERROR 28936 --- [SpringProjesi] [main] o.s.boot.SpringApplication               : Application run failed
+
+org.springframework.beans.factory.BeanDefinitionStoreException: Failed to parse configuration class [com.adaloveladies.SpringProjesi.SpringProjesiApplication]
+	at org.springframework.context.annotation.ConfigurationClassParser.parse(ConfigurationClassParser.java:179) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.annotation.ConfigurationClassPostProcessor.processConfigBeanDefinitions(ConfigurationClassPostProcessor.java:416) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.annotation.ConfigurationClassPostProcessor.postProcessBeanDefinitionRegistry(ConfigurationClassPostProcessor.java:289) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.support.PostProcessorRegistrationDelegate.invokeBeanDefinitionRegistryPostProcessors(PostProcessorRegistrationDelegate.java:349) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.support.PostProcessorRegistrationDelegate.invokeBeanFactoryPostProcessors(PostProcessorRegistrationDelegate.java:118) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.support.AbstractApplicationContext.invokeBeanFactoryPostProcessors(AbstractApplicationContext.java:788) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:606) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:146) ~[spring-boot-3.2.3.jar:3.2.3]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:754) ~[spring-boot-3.2.3.jar:3.2.3]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:456) ~[spring-boot-3.2.3.jar:3.2.3]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:334) ~[spring-boot-3.2.3.jar:3.2.3]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354) ~[spring-boot-3.2.3.jar:3.2.3]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1343) ~[spring-boot-3.2.3.jar:3.2.3]
+	at com.adaloveladies.SpringProjesi.SpringProjesiApplication.main(SpringProjesiApplication.java:10) ~[classes/:na]
+Caused by: org.springframework.context.annotation.ConflictingBeanDefinitionException: Annotation-specified bean name 'jwtAuthenticationFilter' for bean class [com.adaloveladies.SpringProjesi.security.JwtAuthenticationFilter] conflicts with existing, non-compatible bean definition of same name and class [com.adaloveladies.SpringProjesi.config.JwtAuthenticationFilter]
+	at org.springframework.context.annotation.ClassPathBeanDefinitionScanner.checkCandidate(ClassPathBeanDefinitionScanner.java:361) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.annotation.ClassPathBeanDefinitionScanner.doScan(ClassPathBeanDefinitionScanner.java:288) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.annotation.ComponentScanAnnotationParser.parse(ComponentScanAnnotationParser.java:128) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.annotation.ConfigurationClassParser.doProcessConfigurationClass(ConfigurationClassParser.java:306) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.annotation.ConfigurationClassParser.processConfigurationClass(ConfigurationClassParser.java:246) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.annotation.ConfigurationClassParser.parse(ConfigurationClassParser.java:197) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.annotation.ConfigurationClassParser.parse(ConfigurationClassParser.java:165) ~[spring-context-6.1.4.jar:6.1.4]
+	... 13 common frames omitted
+
+2025-05-29T19:16:25.203+03:00  INFO 12404 --- [SpringProjesi] [main] c.a.S.SpringProjesiApplication           : Starting SpringProjesiApplication using Java 17.0.12 with PID 12404 (C:\Users\demir\Downloads\SpringProjesi-main (1)\SpringProjesi-3\target\classes started by demir in C:\Users\demir\Downloads\SpringProjesi-main (1)\SpringProjesi-3)
+2025-05-29T19:16:25.205+03:00 DEBUG 12404 --- [SpringProjesi] [main] c.a.S.SpringProjesiApplication           : Running with Spring Boot v3.2.3, Spring v6.1.4
+2025-05-29T19:16:25.208+03:00  INFO 12404 --- [SpringProjesi] [main] c.a.S.SpringProjesiApplication           : No active profile set, falling back to 1 default profile: "default"
+2025-05-29T19:16:25.509+03:00  WARN 12404 --- [SpringProjesi] [main] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanDefinitionStoreException: Failed to parse configuration class [com.adaloveladies.SpringProjesi.SpringProjesiApplication]
+2025-05-29T19:16:25.598+03:00 ERROR 12404 --- [SpringProjesi] [main] o.s.boot.SpringApplication               : Application run failed
+
+org.springframework.beans.factory.BeanDefinitionStoreException: Failed to parse configuration class [com.adaloveladies.SpringProjesi.SpringProjesiApplication]
+	at org.springframework.context.annotation.ConfigurationClassParser.parse(ConfigurationClassParser.java:179) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.annotation.ConfigurationClassPostProcessor.processConfigBeanDefinitions(ConfigurationClassPostProcessor.java:416) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.annotation.ConfigurationClassPostProcessor.postProcessBeanDefinitionRegistry(ConfigurationClassPostProcessor.java:289) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.support.PostProcessorRegistrationDelegate.invokeBeanDefinitionRegistryPostProcessors(PostProcessorRegistrationDelegate.java:349) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.support.PostProcessorRegistrationDelegate.invokeBeanFactoryPostProcessors(PostProcessorRegistrationDelegate.java:118) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.support.AbstractApplicationContext.invokeBeanFactoryPostProcessors(AbstractApplicationContext.java:788) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:606) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:146) ~[spring-boot-3.2.3.jar:3.2.3]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:754) ~[spring-boot-3.2.3.jar:3.2.3]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:456) ~[spring-boot-3.2.3.jar:3.2.3]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:334) ~[spring-boot-3.2.3.jar:3.2.3]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354) ~[spring-boot-3.2.3.jar:3.2.3]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1343) ~[spring-boot-3.2.3.jar:3.2.3]
+	at com.adaloveladies.SpringProjesi.SpringProjesiApplication.main(SpringProjesiApplication.java:10) ~[classes/:na]
+Caused by: org.springframework.context.annotation.ConflictingBeanDefinitionException: Annotation-specified bean name 'jwtAuthenticationFilter' for bean class [com.adaloveladies.SpringProjesi.security.JwtAuthenticationFilter] conflicts with existing, non-compatible bean definition of same name and class [com.adaloveladies.SpringProjesi.config.JwtAuthenticationFilter]
+	at org.springframework.context.annotation.ClassPathBeanDefinitionScanner.checkCandidate(ClassPathBeanDefinitionScanner.java:361) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.annotation.ClassPathBeanDefinitionScanner.doScan(ClassPathBeanDefinitionScanner.java:288) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.annotation.ComponentScanAnnotationParser.parse(ComponentScanAnnotationParser.java:128) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.annotation.ConfigurationClassParser.doProcessConfigurationClass(ConfigurationClassParser.java:306) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.annotation.ConfigurationClassParser.processConfigurationClass(ConfigurationClassParser.java:246) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.annotation.ConfigurationClassParser.parse(ConfigurationClassParser.java:197) ~[spring-context-6.1.4.jar:6.1.4]
+	at org.springframework.context.annotation.ConfigurationClassParser.parse(ConfigurationClassParser.java:165) ~[spring-context-6.1.4.jar:6.1.4]
+	... 13 common frames omitted
+

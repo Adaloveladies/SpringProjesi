@@ -3,47 +3,41 @@ package com.adaloveladies.SpringProjesi.audit;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class AuditLogService {
 
     private final AuditLogRepository auditLogRepository;
 
-    public void logAction(String username, String action, String details, HttpServletRequest request) {
-        AuditLog auditLog = AuditLog.builder()
-                .username(username)
-                .action(action)
-                .details(details)
-                .ipAddress(getClientIp(request))
-                .timestamp(LocalDateTime.now())
-                .status("SUCCESS")
+    public void logIslem(String kullaniciAdi, String islem, String detay, String sonuc, HttpServletRequest request) {
+        AuditLog log = AuditLog.builder()
+                .kullaniciAdi(kullaniciAdi)
+                .islem(islem)
+                .detay(detay)
+                .sonuc(sonuc)
+                .tarih(LocalDateTime.now())
+                .ipAdresi(request.getRemoteAddr())
+                .userAgent(request.getHeader("User-Agent"))
                 .build();
 
-        auditLogRepository.save(auditLog);
+        auditLogRepository.save(log);
     }
 
-    public void logError(String username, String action, String details, String errorMessage, HttpServletRequest request) {
-        AuditLog auditLog = AuditLog.builder()
-                .username(username)
-                .action(action)
-                .details(details)
-                .ipAddress(getClientIp(request))
-                .timestamp(LocalDateTime.now())
-                .status("ERROR")
-                .errorMessage(errorMessage)
-                .build();
-
-        auditLogRepository.save(auditLog);
+    public List<AuditLog> kullaniciLoglariniGetir(String kullaniciAdi) {
+        return auditLogRepository.findByKullaniciAdiOrderByTarihDesc(kullaniciAdi);
     }
 
-    private String getClientIp(HttpServletRequest request) {
-        String xForwardedFor = request.getHeader("X-Forwarded-For");
-        if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
-            return xForwardedFor.split(",")[0];
-        }
-        return request.getRemoteAddr();
+    public List<AuditLog> tarihAraligiLoglariniGetir(LocalDateTime baslangic, LocalDateTime bitis) {
+        return auditLogRepository.findByTarihBetweenOrderByTarihDesc(baslangic, bitis);
+    }
+
+    public List<AuditLog> islemLoglariniGetir(String islem) {
+        return auditLogRepository.findByIslemOrderByTarihDesc(islem);
     }
 } 

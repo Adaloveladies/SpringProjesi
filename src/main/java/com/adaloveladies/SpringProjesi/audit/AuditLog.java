@@ -21,23 +21,23 @@ public class AuditLog {
     private Long id;
 
     @Column(nullable = false)
-    private String username;
+    private String kullaniciAdi;
 
     @Column(nullable = false)
-    private String action;
+    private String islem;
+
+    @Column(length = 1000)
+    private String detay;
 
     @Column(nullable = false)
-    private String details;
+    private String sonuc;
 
     @Column(nullable = false)
-    private String ipAddress;
-
-    @Column(nullable = false)
-    private LocalDateTime timestamp;
+    private LocalDateTime tarih;
 
     @Column
-    private String status;
+    private String ipAdresi;
 
     @Column
-    private String errorMessage;
+    private String userAgent;
 } 

@@ -8,7 +8,7 @@ import java.util.List;
 
 @Repository
 public interface AuditLogRepository extends JpaRepository<AuditLog, Long> {
-    List<AuditLog> findByUsername(String username);
-    List<AuditLog> findByTimestampBetween(LocalDateTime start, LocalDateTime end);
-    List<AuditLog> findByAction(String action);
+    List<AuditLog> findByKullaniciAdiOrderByTarihDesc(String kullaniciAdi);
+    List<AuditLog> findByTarihBetweenOrderByTarihDesc(LocalDateTime baslangic, LocalDateTime bitis);
+    List<AuditLog> findByIslemOrderByTarihDesc(String islem);
 } 
