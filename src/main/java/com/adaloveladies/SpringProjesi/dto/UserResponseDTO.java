@@ -1,9 +1,10 @@
 package com.adaloveladies.SpringProjesi.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
+import lombok.Builder;
 import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import java.util.Set;
 
 /**
  * Kullanıcı bilgilerini döndürmek için DTO
@@ -15,7 +16,11 @@ import lombok.NoArgsConstructor;
 public class UserResponseDTO {
     private Long id;
     private String username;
+    private String email;
+    private String ad;
+    private String soyad;
+    private Integer points;
     private Integer level;
-    private Integer score;
-    private Integer completedBuildings;
+    private Integer completedTaskCount;
+    private Set<String> roller;
 } 

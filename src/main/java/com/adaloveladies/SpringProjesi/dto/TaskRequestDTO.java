@@ -1,12 +1,11 @@
 package com.adaloveladies.SpringProjesi.dto;
 
-import com.adaloveladies.SpringProjesi.model.TaskStatus;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import com.adaloveladies.SpringProjesi.model.GorevTipi;
 import lombok.Data;
+import lombok.Builder;
 import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import java.time.LocalDateTime;
 
 /**
  * Görev oluşturma ve güncelleme istekleri için DTO
@@ -16,13 +15,58 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TaskRequestDTO {
+    private String baslik;
+    private String aciklama;
+    private GorevTipi gorevTipi;
+    private Integer puanDegeri;
+    private LocalDateTime bitisTarihi;
+    private Long sehirId;
 
-    @NotBlank(message = "Başlık boş olamaz")
-    private String title;
+    public String getBaslik() {
+        return baslik;
+    }
 
-    @NotBlank(message = "Açıklama boş olamaz")
-    private String description;
+    public void setBaslik(String baslik) {
+        this.baslik = baslik;
+    }
 
-    @NotNull(message = "Durum boş olamaz")
-    private TaskStatus status;
+    public String getAciklama() {
+        return aciklama;
+    }
+
+    public void setAciklama(String aciklama) {
+        this.aciklama = aciklama;
+    }
+
+    public GorevTipi getGorevTipi() {
+        return gorevTipi;
+    }
+
+    public void setGorevTipi(GorevTipi gorevTipi) {
+        this.gorevTipi = gorevTipi;
+    }
+
+    public Integer getPuanDegeri() {
+        return puanDegeri;
+    }
+
+    public void setPuanDegeri(Integer puanDegeri) {
+        this.puanDegeri = puanDegeri;
+    }
+
+    public LocalDateTime getBitisTarihi() {
+        return bitisTarihi;
+    }
+
+    public void setBitisTarihi(LocalDateTime bitisTarihi) {
+        this.bitisTarihi = bitisTarihi;
+    }
+
+    public Long getSehirId() {
+        return sehirId;
+    }
+
+    public void setSehirId(Long sehirId) {
+        this.sehirId = sehirId;
+    }
 } 

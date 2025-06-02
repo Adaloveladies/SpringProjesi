@@ -1,18 +1,17 @@
 package com.adaloveladies.SpringProjesi.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
+import lombok.Builder;
 import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class LeaderboardDTO {
-    private Long id;
+    private Long userId;
     private String username;
-    private Integer score;
-    private Integer level;
-    private Integer completedBuildings;
+    private Integer points;
+    private Integer rank;
 } 
