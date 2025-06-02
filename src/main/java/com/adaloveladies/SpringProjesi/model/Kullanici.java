@@ -1,195 +1,92 @@
 package com.adaloveladies.SpringProjesi.model;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
-@Getter
-@Setter
+@Table(name = "kullanicilar")
+@Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder(toBuilder = true)
-@ToString(onlyExplicitlyIncluded = true)
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@Table(name = "kullanicilar", indexes = {
-    @Index(name = "idx_kullanici_email", columnList = "email", unique = true),
-    @Index(name = "idx_kullanici_kullanici_adi", columnList = "kullanici_adi", unique = true),
-    @Index(name = "idx_kullanici_seviye", columnList = "seviye"),
-    @Index(name = "idx_kullanici_puan", columnList = "puan")
-})
 public class Kullanici implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @ToString.Include
-    @EqualsAndHashCode.Include
     private Long id;
 
-    @Column(name = "kullanici_adi", nullable = false, unique = true, length = 50)
-    @ToString.Include
-    @EqualsAndHashCode.Include
-    private String kullaniciAdi;
+    @Column(unique = true, nullable = false)
+    private String username;
 
-    @Column(nullable = false, unique = true, length = 100)
+    @Column(unique = true, nullable = false)
     private String email;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false)
     private String password;
 
-    @Column(length = 50)
-    private String ad;
+    private Integer points;
+    private Integer level;
+    private Integer completedTaskCount;
 
-    @Column(length = 50)
-    private String soyad;
+    @Column(name = "creation_date")
+    private LocalDateTime creationDate;
 
-    @Column(nullable = false)
+    private boolean active;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "kullanici_roller",
+        joinColumns = @JoinColumn(name = "kullanici_id"),
+        inverseJoinColumns = @JoinColumn(name = "rol_id")
+    )
     @Builder.Default
-    private Integer seviye = 1;
+    private Set<Rol> roller = new HashSet<>();
 
-    @Column(nullable = false)
+    @OneToMany(mappedBy = "kullanici", cascade = CascadeType.ALL)
     @Builder.Default
-    private Integer puan = 0;
+    private Set<Task> tasks = new HashSet<>();
 
-    @Column(name = "olusturma_tarihi", nullable = false, updatable = false)
+    @OneToMany(mappedBy = "kullanici", cascade = CascadeType.ALL)
     @Builder.Default
-    private LocalDateTime olusturmaTarihi = LocalDateTime.now();
+    private Set<Sehir> cities = new HashSet<>();
 
-    @Column(name = "son_giris_tarihi")
-    private LocalDateTime sonGirisTarihi;
-
-    @Column(name = "son_guncelleme_tarihi")
+    @OneToMany(mappedBy = "kullanici", cascade = CascadeType.ALL)
     @Builder.Default
-    private LocalDateTime sonGuncellemeTarihi = LocalDateTime.now();
+    private Set<Bildirim> notifications = new HashSet<>();
 
-    @Column(name = "hesap_aktif", nullable = false)
+    @OneToMany(mappedBy = "kullanici", cascade = CascadeType.ALL)
     @Builder.Default
-    private boolean hesapAktif = true;
+    private Set<Rozet> badges = new HashSet<>();
 
-    @Column(name = "hesap_kilitli", nullable = false)
-    @Builder.Default
-    private boolean hesapKilitli = false;
-
-    @OneToMany(mappedBy = "kullanici", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @Builder.Default
-    private Set<Gorev> gorevler = new HashSet<>();
-
-    @OneToMany(mappedBy = "kullanici", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @Builder.Default
-    private Set<Rozet> rozetler = new HashSet<>();
-
-    @OneToMany(mappedBy = "kullanici", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @Builder.Default
-    private Set<Bildirim> bildirimler = new HashSet<>();
-
-    @OneToOne(mappedBy = "kullanici", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private Istatistik istatistik;
+    @OneToOne(mappedBy = "kullanici", cascade = CascadeType.ALL)
+    private Istatistik statistics;
 
     @PrePersist
     protected void onCreate() {
-        if (olusturmaTarihi == null) {
-            olusturmaTarihi = LocalDateTime.now();
-        }
-        if (sonGuncellemeTarihi == null) {
-            sonGuncellemeTarihi = LocalDateTime.now();
-        }
-        if (puan == null) {
-            puan = 0;
-        }
-        if (seviye == null) {
-            seviye = 1;
-        }
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        sonGuncellemeTarihi = LocalDateTime.now();
-    }
-
-    public void puanEkle(int eklenecekPuan) {
-        if (eklenecekPuan < 0) {
-            throw new IllegalArgumentException("Eklenecek puan negatif olamaz");
-        }
-        this.puan += eklenecekPuan;
-        seviyeKontrol();
-    }
-
-    private void seviyeKontrol() {
-        int yeniSeviye = (puan / 100) + 1;
-        if (yeniSeviye > seviye) {
-            this.seviye = yeniSeviye;
-        }
-    }
-
-    public void gorevEkle(Gorev gorev) {
-        if (gorev == null) {
-            throw new IllegalArgumentException("Görev null olamaz");
-        }
-        gorevler.add(gorev);
-        gorev.setKullanici(this);
-    }
-
-    public void gorevSil(Gorev gorev) {
-        if (gorev == null) {
-            throw new IllegalArgumentException("Görev null olamaz");
-        }
-        gorevler.remove(gorev);
-        gorev.setKullanici(null);
-    }
-
-    public void rozetEkle(Rozet rozet) {
-        if (rozet == null) {
-            throw new IllegalArgumentException("Rozet null olamaz");
-        }
-        rozetler.add(rozet);
-        rozet.setKullanici(this);
-    }
-
-    public void rozetSil(Rozet rozet) {
-        if (rozet == null) {
-            throw new IllegalArgumentException("Rozet null olamaz");
-        }
-        rozetler.remove(rozet);
-        rozet.setKullanici(null);
-    }
-
-    public void bildirimEkle(Bildirim bildirim) {
-        if (bildirim == null) {
-            throw new IllegalArgumentException("Bildirim null olamaz");
-        }
-        bildirimler.add(bildirim);
-        bildirim.setKullanici(this);
-    }
-
-    public void bildirimSil(Bildirim bildirim) {
-        if (bildirim == null) {
-            throw new IllegalArgumentException("Bildirim null olamaz");
-        }
-        bildirimler.remove(bildirim);
-        bildirim.setKullanici(null);
+        creationDate = LocalDateTime.now();
+        active = true;
+        points = 0;
+        level = 1;
+        completedTaskCount = 0;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
-    }
-
-    @Override
-    public String getPassword() {
-        return password;
-    }
-
-    @Override
-    public String getUsername() {
-        return kullaniciAdi;
+        return roller.stream()
+                .map(rol -> new SimpleGrantedAuthority(rol.getName()))
+                .collect(Collectors.toSet());
     }
 
     @Override
@@ -199,7 +96,7 @@ public class Kullanici implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return !hesapKilitli;
+        return true;
     }
 
     @Override
@@ -209,6 +106,145 @@ public class Kullanici implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return hesapAktif;
+        return active;
+    }
+
+    @Override
+    public String getPassword() {
+        return password;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public Integer getPoints() {
+        return points;
+    }
+
+    public void setPoints(Integer points) {
+        this.points = points;
+    }
+
+    public Integer getLevel() {
+        return level;
+    }
+
+    public void setLevel(Integer level) {
+        this.level = level;
+    }
+
+    public Integer getCompletedTaskCount() {
+        return completedTaskCount;
+    }
+
+    public void setCompletedTaskCount(Integer completedTaskCount) {
+        this.completedTaskCount = completedTaskCount;
+    }
+
+    public LocalDateTime getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(LocalDateTime creationDate) {
+        this.creationDate = creationDate;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    public void addPoints(int points) {
+        this.points += points;
+        checkLevel();
+    }
+
+    private void checkLevel() {
+        int newLevel = (points / 1000) + 1;
+        if (newLevel > level) {
+            level = newLevel;
+        }
+    }
+
+    public void completeTask() {
+        completedTaskCount++;
+    }
+
+    public boolean hasRole(String roleName) {
+        return roller.stream().anyMatch(rol -> rol.getName().equals(roleName));
+    }
+
+    public Set<String> getRolAdlari() {
+        return roller.stream()
+                .map(Rol::getName)
+                .collect(Collectors.toSet());
+    }
+
+    public boolean isAdmin() {
+        return hasRole("ROLE_ADMIN");
+    }
+
+    public boolean isModerator() {
+        return hasRole("ROLE_MODERATOR");
+    }
+
+    public boolean isUser() {
+        return hasRole("ROLE_USER");
+    }
+
+    public Integer getSeviye() {
+        return level;
+    }
+
+    public void setSeviye(Integer seviye) {
+        this.level = seviye;
+    }
+
+    public String getKullaniciAdi() {
+        return username;
+    }
+
+    public void setKullaniciAdi(String kullaniciAdi) {
+        this.username = kullaniciAdi;
+    }
+
+    public Integer getTamamlananGorevSayisi() {
+        return completedTaskCount;
+    }
+
+    public void setTamamlananGorevSayisi(Integer tamamlananGorevSayisi) {
+        this.completedTaskCount = tamamlananGorevSayisi;
+    }
+
+    public void setRoller(Set<Rol> roller) {
+        this.roller = roller;
+    }
+
+    public Set<Rol> getRoller() {
+        return roller;
     }
 } 

@@ -5,19 +5,18 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.time.LocalDateTime;
 
 /**
  * Görev modeli
  * Kullanıcıların oluşturduğu görevleri temsil eder
  */
-@Entity
-@Table(name = "tasks")
 @Data
+@Entity
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "gorevler")
 public class Task {
 
     @Id
@@ -25,30 +24,179 @@ public class Task {
     private Long id;
 
     @Column(nullable = false)
-    private String title; // Görev başlığı
+    private String baslik;
 
-    @Column(nullable = false)
-    private String description; // Görev açıklaması
+    @Column(length = 1000)
+    private String aciklama;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private TaskStatus status; // Görev durumu
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user; // Görevi oluşturan kullanıcı
+    private GorevTipi gorevTipi;
 
     @Column(nullable = false)
-    private LocalDateTime createdAt; // Oluşturulma tarihi
+    private Integer puanDegeri;
 
-    @Column
-    private LocalDateTime completedAt; // Tamamlanma tarihi
+    @Column(name = "son_tarih")
+    private LocalDateTime sonTarih;
 
-    /**
-     * Görev oluşturulduğunda otomatik olarak tarih atar
-     */
+    @Column(name = "tamamlandi")
+    private boolean tamamlandi;
+
+    @Column(name = "tamamlanma_tarihi")
+    private LocalDateTime tamamlanmaTarihi;
+
+    @Column(name = "olusturma_tarihi")
+    private LocalDateTime olusturmaTarihi;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "kullanici_id", nullable = false)
+    private Kullanici kullanici;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TaskStatus durum;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sehir_id")
+    private Sehir sehir;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "building_id")
+    private Building building;
+
     @PrePersist
     protected void onCreate() {
-        createdAt = LocalDateTime.now();
+        olusturmaTarihi = LocalDateTime.now();
+        if (durum == null) {
+            durum = TaskStatus.BEKLEMEDE;
+        }
+        if (puanDegeri == null) {
+            puanDegeri = 0;
+        }
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        if (durum == TaskStatus.TAMAMLANDI && tamamlanmaTarihi == null) {
+            tamamlanmaTarihi = LocalDateTime.now();
+        }
+    }
+
+    public void tamamla() {
+        durum = TaskStatus.TAMAMLANDI;
+        tamamlanmaTarihi = LocalDateTime.now();
+        kullanici.completeTask();
+    }
+
+    public void iptalEt() {
+        durum = TaskStatus.IPTAL_EDILDI;
+    }
+
+    public void baslat() {
+        durum = TaskStatus.DEVAM_EDIYOR;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getBaslik() {
+        return baslik;
+    }
+
+    public void setBaslik(String baslik) {
+        this.baslik = baslik;
+    }
+
+    public String getAciklama() {
+        return aciklama;
+    }
+
+    public void setAciklama(String aciklama) {
+        this.aciklama = aciklama;
+    }
+
+    public Integer getPuanDegeri() {
+        return puanDegeri;
+    }
+
+    public void setPuanDegeri(Integer puanDegeri) {
+        this.puanDegeri = puanDegeri;
+    }
+
+    public TaskStatus getDurum() {
+        return durum;
+    }
+
+    public void setDurum(TaskStatus durum) {
+        this.durum = durum;
+    }
+
+    public GorevTipi getGorevTipi() {
+        return gorevTipi;
+    }
+
+    public void setGorevTipi(GorevTipi gorevTipi) {
+        this.gorevTipi = gorevTipi;
+    }
+
+    public LocalDateTime getSonTarih() {
+        return sonTarih;
+    }
+
+    public void setSonTarih(LocalDateTime sonTarih) {
+        this.sonTarih = sonTarih;
+    }
+
+    public boolean isTamamlandi() {
+        return tamamlandi;
+    }
+
+    public void setTamamlandi(boolean tamamlandi) {
+        this.tamamlandi = tamamlandi;
+    }
+
+    public LocalDateTime getOlusturmaTarihi() {
+        return olusturmaTarihi;
+    }
+
+    public void setOlusturmaTarihi(LocalDateTime olusturmaTarihi) {
+        this.olusturmaTarihi = olusturmaTarihi;
+    }
+
+    public LocalDateTime getTamamlanmaTarihi() {
+        return tamamlanmaTarihi;
+    }
+
+    public void setTamamlanmaTarihi(LocalDateTime tamamlanmaTarihi) {
+        this.tamamlanmaTarihi = tamamlanmaTarihi;
+    }
+
+    public Kullanici getKullanici() {
+        return kullanici;
+    }
+
+    public void setKullanici(Kullanici kullanici) {
+        this.kullanici = kullanici;
+    }
+
+    public Sehir getSehir() {
+        return sehir;
+    }
+
+    public void setSehir(Sehir sehir) {
+        this.sehir = sehir;
+    }
+
+    public Building getBuilding() {
+        return building;
+    }
+
+    public void setBuilding(Building building) {
+        this.building = building;
     }
 } 

@@ -1,15 +1,19 @@
 package com.adaloveladies.SpringProjesi.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 import java.time.LocalDateTime;
 
-@Data
 @Entity
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "bildirimler", indexes = {
     @Index(name = "idx_bildirim_kullanici", columnList = "kullanici_id"),
     @Index(name = "idx_bildirim_okundu", columnList = "okundu"),
-    @Index(name = "idx_bildirim_tarih", columnList = "olusturma_tarihi")
+    @Index(name = "idx_bildirim_tip", columnList = "bildirim_tipi"),
+    @Index(name = "idx_bildirim_olusturma_tarihi", columnList = "olusturma_tarihi")
 })
 public class Bildirim {
     
@@ -17,34 +21,98 @@ public class Bildirim {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @Column(nullable = false)
-    private String baslik;
-    
-    private String mesaj;
-    
-    @Column(name = "olusturma_tarihi")
-    private LocalDateTime olusturmaTarihi;
-    
-    private Boolean okundu = false;
-    
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "kullanici_id", nullable = false)
     private Kullanici kullanici;
     
+    @Column(nullable = false, length = 100)
+    private String baslik;
+    
+    @Column(nullable = false, length = 500)
+    private String mesaj;
+    
     @Enumerated(EnumType.STRING)
     @Column(name = "bildirim_tipi", nullable = false)
-    private BildirimTipi bildirimTipi;
+    private BildirimTipi tip;
+    
+    @Column(nullable = false)
+    private boolean okundu;
+    
+    @Column(name = "olusturma_tarihi", nullable = false)
+    private LocalDateTime olusturmaTarihi;
     
     @PrePersist
     protected void onCreate() {
         olusturmaTarihi = LocalDateTime.now();
+        okundu = false;
     }
     
     public enum BildirimTipi {
-        GOREV_TAMAMLANDI,
-        SEVIYE_ATLANDI,
-        PUAN_KAZANILDI,
-        SISTEM_UYARI,
-        ROZET_KAZANILDI
+        GOREV,
+        SEVIYE,
+        ROZET,
+        SISTEM,
+        GENEL,
+        SEVIYE_ATLAMA,
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getMesaj() {
+        return mesaj;
+    }
+
+    public void setMesaj(String mesaj) {
+        this.mesaj = mesaj;
+    }
+
+    public boolean isOkundu() {
+        return okundu;
+    }
+
+    public void setOkundu(boolean okundu) {
+        this.okundu = okundu;
+    }
+
+    public LocalDateTime getOlusturmaTarihi() {
+        return olusturmaTarihi;
+    }
+
+    public void setOlusturmaTarihi(LocalDateTime olusturmaTarihi) {
+        this.olusturmaTarihi = olusturmaTarihi;
+    }
+
+    public Kullanici getKullanici() {
+        return kullanici;
+    }
+
+    public void setKullanici(Kullanici kullanici) {
+        this.kullanici = kullanici;
+    }
+
+    public void okunduOlarakIsaretle() {
+        okundu = true;
+    }
+
+    public String getBaslik() {
+        return baslik;
+    }
+
+    public void setBaslik(String baslik) {
+        this.baslik = baslik;
+    }
+
+    public BildirimTipi getTip() {
+        return tip;
+    }
+
+    public void setTip(BildirimTipi tip) {
+        this.tip = tip;
     }
 } 

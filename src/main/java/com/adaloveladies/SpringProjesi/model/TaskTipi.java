@@ -1,11 +1,9 @@
 package com.adaloveladies.SpringProjesi.model;
 
-import lombok.Getter;
-
-@Getter
-public enum GorevTipi {
+public enum TaskTipi {
     GUNLUK,
     HAFTALIK,
     AYLIK,
+    YILLIK,
     OZEL
 } 
