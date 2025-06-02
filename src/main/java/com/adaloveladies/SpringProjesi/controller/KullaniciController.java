@@ -39,7 +39,7 @@ public class KullaniciController {
     public ResponseEntity<KullaniciResponseDTO> kullaniciOlustur(
             @Parameter(description = "Kullanıcı bilgileri", required = true)
             @Valid @RequestBody KullaniciRequestDTO request) {
-        return ResponseEntity.ok(kullaniciService.kullaniciOlustur(request));
+        return ResponseEntity.ok(kullaniciService.createKullanici(request));
     }
 
     @GetMapping("/{id}")
@@ -55,7 +55,7 @@ public class KullaniciController {
     public ResponseEntity<KullaniciResponseDTO> kullaniciGetir(
             @Parameter(description = "Kullanıcı ID", required = true)
             @PathVariable Long id) {
-        return ResponseEntity.ok(kullaniciService.kullaniciGetir(id));
+        return ResponseEntity.ok(kullaniciService.getKullaniciById(id));
     }
 
     @PutMapping("/{id}")
@@ -74,7 +74,7 @@ public class KullaniciController {
             @PathVariable Long id,
             @Parameter(description = "Güncellenecek kullanıcı bilgileri", required = true)
             @Valid @RequestBody KullaniciRequestDTO request) {
-        return ResponseEntity.ok(kullaniciService.kullaniciGuncelle(id, request));
+        return ResponseEntity.ok(kullaniciService.updateKullanici(id, request));
     }
 
     @DeleteMapping("/{id}")
@@ -89,7 +89,7 @@ public class KullaniciController {
     public ResponseEntity<Void> kullaniciSil(
             @Parameter(description = "Kullanıcı ID", required = true)
             @PathVariable Long id) {
-        kullaniciService.kullaniciSil(id);
+        kullaniciService.deleteKullanici(id);
         return ResponseEntity.ok().build();
     }
 
@@ -103,7 +103,7 @@ public class KullaniciController {
             content = @Content(schema = @Schema(implementation = KullaniciResponseDTO.class)))
     })
     public ResponseEntity<List<KullaniciResponseDTO>> tumKullanicilariGetir() {
-        return ResponseEntity.ok(kullaniciService.tumKullanicilariGetir());
+        return ResponseEntity.ok(kullaniciService.getAllKullanicilar());
     }
 
     @PostMapping("/{id}/puan")
@@ -122,7 +122,7 @@ public class KullaniciController {
             @PathVariable Long id,
             @Parameter(description = "Eklenecek puan miktarı", required = true)
             @RequestParam Integer puan) {
-        kullaniciService.puanEkle(id, puan);
-        return ResponseEntity.ok(kullaniciService.kullaniciGetir(id));
+        kullaniciService.addPuan(id, puan);
+        return ResponseEntity.ok(kullaniciService.getKullaniciById(id));
     }
 } 

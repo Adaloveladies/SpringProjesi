@@ -1,16 +1,15 @@
 package com.adaloveladies.SpringProjesi.controller;
 
-import com.adaloveladies.SpringProjesi.model.User;
+import com.adaloveladies.SpringProjesi.model.Kullanici;
 import com.adaloveladies.SpringProjesi.repository.BuildingRepository;
 import com.adaloveladies.SpringProjesi.repository.TaskRepository;
-import com.adaloveladies.SpringProjesi.repository.UserRepository;
+import com.adaloveladies.SpringProjesi.repository.KullaniciRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
-
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -23,7 +22,7 @@ class LeaderboardControllerIntegrationTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private UserRepository userRepository;
+    private KullaniciRepository kullaniciRepository;
 
     @Autowired
     private TaskRepository taskRepository;
@@ -31,52 +30,54 @@ class LeaderboardControllerIntegrationTest {
     @Autowired
     private BuildingRepository buildingRepository;
 
-    private User user1;
-    private User user2;
-    private User user3;
+    private Kullanici kullanici1;
+    private Kullanici kullanici2;
+    private Kullanici kullanici3;
 
     @BeforeEach
     void setUp() {
         // Test verilerini temizle
         taskRepository.deleteAll();
         buildingRepository.deleteAll();
-        userRepository.deleteAll();
+        kullaniciRepository.deleteAll();
+        kullaniciRepository.flush(); // Değişiklikleri hemen uygula
 
         // Test kullanıcıları oluştur
-        user1 = User.builder()
-                .username("user1")
-                .email("user1@example.com")
-                .password("password")
-                .score(150)
-                .level(1)
-                .build();
+        kullanici1 = Kullanici.builder()
+            .username("kullanici1")
+            .email("test1@example.com") // Benzersiz e-posta
+            .password("sifre")
+            .points(150)
+            .level(1)
+            .build();
 
-        user2 = User.builder()
-                .username("user2")
-                .email("user2@example.com")
-                .password("password")
-                .score(200)
-                .level(2)
-                .build();
+        kullanici2 = Kullanici.builder()
+            .username("kullanici2")
+            .email("test2@example.com") // Benzersiz e-posta
+            .password("sifre")
+            .points(200)
+            .level(2)
+            .build();
 
-        user3 = User.builder()
-                .username("user3")
-                .email("user3@example.com")
-                .password("password")
-                .score(80)
-                .level(1)
-                .build();
+        kullanici3 = Kullanici.builder()
+            .username("kullanici3")
+            .email("test3@example.com") // Benzersiz e-posta
+            .password("sifre")
+            .points(80)
+            .level(1)
+            .build();
 
-        userRepository.saveAll(java.util.Arrays.asList(user1, user2, user3));
+        kullaniciRepository.saveAll(java.util.Arrays.asList(kullanici1, kullanici2, kullanici3));
+        kullaniciRepository.flush(); // Değişiklikleri hemen uygula
     }
 
     @Test
     void getGlobalLeaderboard_Success() throws Exception {
         mockMvc.perform(get("/api/leaderboard/global"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].username").value("user2")) // En yüksek puan
-                .andExpect(jsonPath("$[1].username").value("user1"))
-                .andExpect(jsonPath("$[2].username").value("user3"))
+                .andExpect(jsonPath("$[0].username").value("kullanici2")) // En yüksek puan
+                .andExpect(jsonPath("$[1].username").value("kullanici1"))
+                .andExpect(jsonPath("$[2].username").value("kullanici3"))
                 .andExpect(jsonPath("$[0].rank").value(1))
                 .andExpect(jsonPath("$[1].rank").value(2))
                 .andExpect(jsonPath("$[2].rank").value(3));
@@ -85,16 +86,16 @@ class LeaderboardControllerIntegrationTest {
     @Test
     void getTopBuilders_Success() throws Exception {
         // Test için bina sayılarını ayarla
-        user1.setScore(150);
-        user2.setScore(200);
-        user3.setScore(80);
-        userRepository.saveAll(java.util.Arrays.asList(user1, user2, user3));
+        kullanici1.setPoints(150);
+        kullanici2.setPoints(200);
+        kullanici3.setPoints(80);
+        kullaniciRepository.saveAll(java.util.Arrays.asList(kullanici1, kullanici2, kullanici3));
 
         mockMvc.perform(get("/api/leaderboard/builders"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].username").value("user2")) // En çok bina
-                .andExpect(jsonPath("$[1].username").value("user1"))
-                .andExpect(jsonPath("$[2].username").value("user3"))
+                .andExpect(jsonPath("$[0].username").value("kullanici2")) // En çok bina
+                .andExpect(jsonPath("$[1].username").value("kullanici1"))
+                .andExpect(jsonPath("$[2].username").value("kullanici3"))
                 .andExpect(jsonPath("$[0].rank").value(1))
                 .andExpect(jsonPath("$[1].rank").value(2))
                 .andExpect(jsonPath("$[2].rank").value(3));
@@ -102,11 +103,11 @@ class LeaderboardControllerIntegrationTest {
 
     @Test
     void getUserRanking_Success() throws Exception {
-        mockMvc.perform(get("/api/leaderboard/user/{userId}", user1.getId()))
+        mockMvc.perform(get("/api/leaderboard/user/{userId}", kullanici1.getId()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.username").value("user1"))
-                .andExpect(jsonPath("$.totalScore").value(150))
-                .andExpect(jsonPath("$.rank").value(2)); // user2'den sonra 2. sırada
+                .andExpect(jsonPath("$.username").value("kullanici1"))
+                .andExpect(jsonPath("$.points").value(150))
+                .andExpect(jsonPath("$.rank").value(2)); // kullanici2'den sonra 2. sırada
     }
 
     @Test

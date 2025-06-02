@@ -11,6 +11,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import java.util.Arrays;
 
 @Aspect
 @Component
@@ -24,27 +25,38 @@ public class AuditLogAspect {
         String kullaniciAdi = getKullaniciAdi();
         String islem = joinPoint.getSignature().getName();
         String detay = getMethodDetails(joinPoint);
-        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        HttpServletRequest request = getRequest();
 
         try {
             Object result = joinPoint.proceed();
             auditLogService.logIslem(kullaniciAdi, islem, detay, "BAŞARILI", request);
             return result;
         } catch (Exception e) {
-            auditLogService.logIslem(kullaniciAdi, islem, detay, "BAŞARISIZ: " + e.getMessage(), request);
+            String hataMesaji = String.format("BAŞARISIZ: %s - %s", e.getClass().getSimpleName(), e.getMessage());
+            auditLogService.logIslem(kullaniciAdi, islem, detay, hataMesaji, request);
             throw e;
         }
     }
 
     private String getKullaniciAdi() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return authentication != null ? authentication.getName() : "ANONIM";
+        return authentication != null && authentication.isAuthenticated() ? 
+               authentication.getName() : "ANONIM";
+    }
+
+    private HttpServletRequest getRequest() {
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (attributes == null) {
+            throw new IllegalStateException("HTTP isteği bulunamadı");
+        }
+        return attributes.getRequest();
     }
 
     private String getMethodDetails(ProceedingJoinPoint joinPoint) {
         StringBuilder details = new StringBuilder();
         details.append("Metod: ").append(joinPoint.getSignature().getName());
         details.append(", Sınıf: ").append(joinPoint.getTarget().getClass().getSimpleName());
+        details.append(", Parametreler: ").append(Arrays.toString(joinPoint.getArgs()));
         return details.toString();
     }
 } 

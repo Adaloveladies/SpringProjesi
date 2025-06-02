@@ -3,8 +3,8 @@ package com.adaloveladies.SpringProjesi.service;
 import com.adaloveladies.SpringProjesi.dto.GorevRequestDTO;
 import com.adaloveladies.SpringProjesi.dto.GorevResponseDTO;
 import com.adaloveladies.SpringProjesi.model.Kullanici;
-import com.adaloveladies.SpringProjesi.model.Gorev;
-import com.adaloveladies.SpringProjesi.model.GorevDurumu;
+import com.adaloveladies.SpringProjesi.model.TaskStatus;
+import com.adaloveladies.SpringProjesi.model.GorevTipi;
 import com.adaloveladies.SpringProjesi.repository.KullaniciRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,22 +32,27 @@ class GorevServiceTest {
     private Kullanici testKullanici;
     private GorevRequestDTO testGorevRequest;
     private static final String TEST_USERNAME = "testuser";
+    private static final int GUNLUK_GOREV_PUANI = 10;
 
     @BeforeEach
     void setUp() {
         // Test kullanıcısı oluştur
-        testKullanici = new Kullanici();
-        testKullanici.setKullaniciAdi(TEST_USERNAME);
-        testKullanici.setEmail("test@example.com");
-        testKullanici.setPassword("password");
+        testKullanici = Kullanici.builder()
+            .username(TEST_USERNAME)
+            .email("test@example.com")
+            .password("password")
+            .points(0)
+            .level(1)
+            .build();
         testKullanici = kullaniciRepository.save(testKullanici);
 
         // Test görevi için request DTO oluştur
-        testGorevRequest = new GorevRequestDTO();
-        testGorevRequest.setBaslik("Test Görevi");
-        testGorevRequest.setAciklama("Test görevi açıklaması");
-        testGorevRequest.setSonTarih(LocalDateTime.now().plusDays(1));
-        testGorevRequest.setTip(Gorev.GorevTipi.GUNLUK);
+        testGorevRequest = GorevRequestDTO.builder()
+            .baslik("Test Görevi")
+            .aciklama("Test görevi açıklaması")
+            .sonTarih(LocalDateTime.now().plusDays(1))
+            .gorevTipi(GorevTipi.GUNLUK)
+            .build();
     }
 
     @Test
@@ -59,7 +64,7 @@ class GorevServiceTest {
         assertNotNull(response);
         assertEquals(testGorevRequest.getBaslik(), response.getBaslik());
         assertEquals(testGorevRequest.getAciklama(), response.getAciklama());
-        assertEquals(testGorevRequest.getTip().getPuanDegeri(), response.getPuanDegeri());
+        assertEquals(GUNLUK_GOREV_PUANI, response.getPuanDegeri());
     }
 
     @Test
@@ -72,7 +77,7 @@ class GorevServiceTest {
 
         // then
         assertNotNull(tamamlananGorev);
-        assertEquals(GorevDurumu.TAMAMLANDI, tamamlananGorev.getDurum());
+        assertEquals(TaskStatus.TAMAMLANDI, tamamlananGorev.getDurum());
         assertNotNull(tamamlananGorev.getTamamlanmaTarihi());
     }
 

@@ -1,11 +1,11 @@
 package com.adaloveladies.SpringProjesi.controller;
 
 import com.adaloveladies.SpringProjesi.model.Building;
-import com.adaloveladies.SpringProjesi.model.User;
+import com.adaloveladies.SpringProjesi.model.Kullanici;
 import com.adaloveladies.SpringProjesi.service.BuildingService;
+import com.adaloveladies.SpringProjesi.service.KullaniciService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,51 +14,71 @@ import java.util.List;
 @RequestMapping("/api/buildings")
 @RequiredArgsConstructor
 public class BuildingController {
-
     private final BuildingService buildingService;
+    private final KullaniciService kullaniciService;
 
-    /**
-     * Kullanıcının tüm binalarını getirir
-     */
-    @GetMapping
-    public ResponseEntity<List<Building>> getAllBuildings(@AuthenticationPrincipal User user) {
-        return ResponseEntity.ok(buildingService.getAllBuildings(user));
-    }
-
-    /**
-     * Kullanıcının tamamlanmamış binalarını getirir
-     */
-    @GetMapping("/incomplete")
-    public ResponseEntity<List<Building>> getIncompleteBuildings(@AuthenticationPrincipal User user) {
-        return ResponseEntity.ok(buildingService.getIncompleteBuildings(user));
-    }
-
-    /**
-     * Kullanıcının bir sonraki inşa edilecek binasını getirir
-     */
-    @GetMapping("/next")
-    public ResponseEntity<Building> getNextBuilding(@AuthenticationPrincipal User user) {
-        return ResponseEntity.ok(buildingService.getNextBuilding(user));
-    }
-
-    /**
-     * Yeni bina oluşturur
-     */
     @PostMapping
-    public ResponseEntity<Building> createBuilding(
-            @RequestBody Building building,
-            @AuthenticationPrincipal User user) {
-        return ResponseEntity.ok(buildingService.createBuilding(building, user));
+    public ResponseEntity<Building> binaOlustur(
+            @RequestParam Long kullaniciId,
+            @RequestParam String ad,
+            @RequestParam String aciklama) {
+        Kullanici kullanici = kullaniciService.kullaniciGetir(kullaniciId)
+                .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı"));
+        Building building = buildingService.binaOlustur(kullanici, ad, aciklama);
+        return ResponseEntity.ok(building);
     }
 
-    /**
-     * Bina durumunu günceller
-     */
-    @PatchMapping("/{buildingId}/status")
-    public ResponseEntity<Building> updateBuildingStatus(
-            @PathVariable Long buildingId,
-            @RequestParam boolean isCompleted,
-            @AuthenticationPrincipal User user) {
-        return ResponseEntity.ok(buildingService.updateBuildingStatus(buildingId, isCompleted, user));
+    @PutMapping("/{id}")
+    public ResponseEntity<Building> binaGuncelle(
+            @PathVariable Long id,
+            @RequestParam String ad,
+            @RequestParam String aciklama) {
+        Building building = buildingService.binaGuncelle(id, ad, aciklama);
+        return ResponseEntity.ok(building);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> binaSil(@PathVariable Long id) {
+        buildingService.binaSil(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Building>> tumBinalariGetir() {
+        List<Building> buildings = buildingService.tumBinalariGetir();
+        return ResponseEntity.ok(buildings);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Building> binaGetir(@PathVariable Long id) {
+        return buildingService.binaGetir(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/user/{kullaniciId}")
+    public ResponseEntity<List<Building>> kullaniciBinalariniGetir(@PathVariable Long kullaniciId) {
+        Kullanici kullanici = kullaniciService.kullaniciGetir(kullaniciId)
+                .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı"));
+        List<Building> buildings = buildingService.kullaniciBinalariniGetir(kullanici);
+        return ResponseEntity.ok(buildings);
+    }
+
+    @PostMapping("/{id}/floor")
+    public ResponseEntity<Building> katEkle(@PathVariable Long id) {
+        Building building = buildingService.katEkle(id);
+        return ResponseEntity.ok(building);
+    }
+
+    @PostMapping("/{id}/roof")
+    public ResponseEntity<Building> catiEkle(@PathVariable Long id) {
+        Building building = buildingService.catiEkle(id);
+        return ResponseEntity.ok(building);
+    }
+
+    @PostMapping("/{id}/task")
+    public ResponseEntity<Building> gorevTamamla(@PathVariable Long id) {
+        Building building = buildingService.gorevTamamla(id);
+        return ResponseEntity.ok(building);
     }
 } 

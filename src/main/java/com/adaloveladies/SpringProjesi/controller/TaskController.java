@@ -1,15 +1,16 @@
 package com.adaloveladies.SpringProjesi.controller;
 
 import com.adaloveladies.SpringProjesi.dto.TaskRequestDTO;
-import com.adaloveladies.SpringProjesi.exception.ResourceNotFoundException;
+import com.adaloveladies.SpringProjesi.dto.TaskResponseDTO;
+import com.adaloveladies.SpringProjesi.model.Kullanici;
 import com.adaloveladies.SpringProjesi.model.TaskStatus;
-import com.adaloveladies.SpringProjesi.model.User;
 import com.adaloveladies.SpringProjesi.service.TaskService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * Görev işlemleri için REST API endpoint'lerini sağlayan controller
@@ -20,55 +21,48 @@ import org.springframework.web.bind.annotation.*;
 public class TaskController {
 
     private final TaskService taskService;
-    @PostMapping
-    public ResponseEntity<?> createTask(@RequestBody TaskRequestDTO taskDTO, @AuthenticationPrincipal User user) {
-        try {
-            return ResponseEntity.ok(taskService.createTask(taskDTO, user));
-        } catch (ResourceNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<?> updateTask(@PathVariable Long id, @RequestBody TaskRequestDTO taskDTO, @AuthenticationPrincipal User user) {
-        try {
-            return ResponseEntity.ok(taskService.updateTask(id, taskDTO, user));
-        } catch (ResourceNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteTask(@PathVariable Long id, @AuthenticationPrincipal User user) {
-        try {
-            taskService.deleteTask(id, user);
-            return ResponseEntity.ok().build();
-        } catch (ResourceNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
-    }
 
     @GetMapping
-    public ResponseEntity<?> getAllTasks(@AuthenticationPrincipal User user) {
-        return ResponseEntity.ok(taskService.getAllTasksByUser(user));
+    public ResponseEntity<List<TaskResponseDTO>> getAllTasks(@AuthenticationPrincipal Kullanici kullanici) {
+        return ResponseEntity.ok(taskService.getAllTasks(kullanici));
     }
 
-    @GetMapping("/status/{status}")
-    public ResponseEntity<?> getTasksByStatus(@PathVariable TaskStatus status, @AuthenticationPrincipal User user) {
-        return ResponseEntity.ok(taskService.getTasksByStatus(user, status));
+    @GetMapping("/{taskId}")
+    public ResponseEntity<TaskResponseDTO> getTaskById(@PathVariable Long taskId, @AuthenticationPrincipal Kullanici kullanici) {
+        return ResponseEntity.ok(taskService.getTaskById(taskId, kullanici));
     }
 
-    @PutMapping("/{id}/status")
-    public ResponseEntity<?> updateTaskStatus(@PathVariable Long id, @RequestParam TaskStatus status, @AuthenticationPrincipal User user) {
-        try {
-            return ResponseEntity.ok(taskService.updateTaskStatus(id, status, user));
-        } catch (ResourceNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
+    @PostMapping
+    public ResponseEntity<TaskResponseDTO> createTask(@RequestBody TaskRequestDTO taskRequest, @AuthenticationPrincipal Kullanici kullanici) {
+        return ResponseEntity.ok(taskService.createTask(taskRequest, kullanici));
+    }
+
+    @PutMapping("/{taskId}")
+    public ResponseEntity<TaskResponseDTO> updateTask(@PathVariable Long taskId, @RequestBody TaskRequestDTO taskRequest, @AuthenticationPrincipal Kullanici kullanici) {
+        return ResponseEntity.ok(taskService.updateTask(taskId, taskRequest, kullanici));
+    }
+
+    @DeleteMapping("/{taskId}")
+    public ResponseEntity<Void> deleteTask(@PathVariable Long taskId, @AuthenticationPrincipal Kullanici kullanici) {
+        taskService.deleteTask(taskId, kullanici);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{taskId}/status")
+    public ResponseEntity<TaskResponseDTO> updateTaskStatus(
+            @PathVariable Long taskId,
+            @RequestParam TaskStatus status,
+            @AuthenticationPrincipal Kullanici kullanici) {
+        return ResponseEntity.ok(taskService.updateTaskStatus(taskId, status, kullanici));
+    }
+
+    @GetMapping("/status/{durum}")
+    public ResponseEntity<List<TaskResponseDTO>> getTasksByStatus(@PathVariable TaskStatus durum, @AuthenticationPrincipal Kullanici kullanici) {
+        return ResponseEntity.ok(taskService.getTasksByStatus(kullanici, durum));
     }
 
     @GetMapping("/search")
-    public ResponseEntity<?> searchTasks(@RequestParam String query, @AuthenticationPrincipal User user) {
-        return ResponseEntity.ok(taskService.searchTasks(user, query));
+    public ResponseEntity<List<TaskResponseDTO>> searchTasks(@RequestParam String searchTerm, @AuthenticationPrincipal Kullanici kullanici) {
+        return ResponseEntity.ok(taskService.searchTasks(kullanici, searchTerm));
     }
 } 

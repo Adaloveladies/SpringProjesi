@@ -1,8 +1,7 @@
 package com.adaloveladies.SpringProjesi.controller;
 
 import com.adaloveladies.SpringProjesi.dto.AuthResponseDTO;
-import com.adaloveladies.SpringProjesi.dto.LoginRequestDTO;
-import com.adaloveladies.SpringProjesi.dto.RegisterRequestDTO;
+import com.adaloveladies.SpringProjesi.dto.AuthRequestDTO;
 import com.adaloveladies.SpringProjesi.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -42,7 +41,7 @@ public class AuthController {
             description = "Kullanıcı adı veya email zaten kullanımda"
         )
     })
-    public ResponseEntity<AuthResponseDTO> register(@RequestBody RegisterRequestDTO request) {
+    public ResponseEntity<AuthResponseDTO> register(@RequestBody AuthRequestDTO request) {
         return ResponseEntity.ok(authService.register(request));
     }
 
@@ -62,7 +61,7 @@ public class AuthController {
             description = "Geçersiz kullanıcı adı veya şifre"
         )
     })
-    public ResponseEntity<AuthResponseDTO> login(@RequestBody LoginRequestDTO request) {
+    public ResponseEntity<AuthResponseDTO> login(@RequestBody AuthRequestDTO request) {
         return ResponseEntity.ok(authService.login(request));
     }
 }

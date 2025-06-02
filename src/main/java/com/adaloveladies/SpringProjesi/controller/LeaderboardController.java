@@ -15,12 +15,12 @@ public class LeaderboardController {
 
     private final LeaderboardService leaderboardService;
 
-    @GetMapping
-    public ResponseEntity<List<LeaderboardDTO>> getLeaderboard() {
-        return ResponseEntity.ok(leaderboardService.getLeaderboard());
+    @GetMapping("/global")
+    public ResponseEntity<List<LeaderboardDTO>> getGlobalLeaderboard() {
+        return ResponseEntity.ok(leaderboardService.getGlobalLeaderboard());
     }
 
-    @GetMapping("/top-builders")
+    @GetMapping("/builders")
     public ResponseEntity<List<LeaderboardDTO>> getTopBuilders() {
         return ResponseEntity.ok(leaderboardService.getTopBuilders());
     }

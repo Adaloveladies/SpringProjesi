@@ -3,7 +3,11 @@ package com.adaloveladies.SpringProjesi.service;
 import com.adaloveladies.SpringProjesi.dto.KullaniciRequestDTO;
 import com.adaloveladies.SpringProjesi.dto.KullaniciResponseDTO;
 import com.adaloveladies.SpringProjesi.model.Kullanici;
+import com.adaloveladies.SpringProjesi.model.Rol;
 import com.adaloveladies.SpringProjesi.repository.KullaniciRepository;
+import com.adaloveladies.SpringProjesi.repository.RolRepository;
+import com.adaloveladies.SpringProjesi.exception.ResourceNotFoundException;
+import com.adaloveladies.SpringProjesi.exception.BusinessException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
+
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -28,98 +33,117 @@ class KullaniciServiceTest {
     private PasswordEncoder passwordEncoder;
 
     @Mock
-    private SehirService sehirService;
+    private RolRepository rolRepository;
 
     @InjectMocks
     private KullaniciService kullaniciService;
 
     private Kullanici testKullanici;
     private KullaniciRequestDTO testRequestDTO;
+    private Rol userRol;
 
     @BeforeEach
     void setUp() {
-        testKullanici = new Kullanici();
-        testKullanici.setId(1L);
-        testKullanici.setKullaniciAdi("testuser");
-        testKullanici.setEmail("test@example.com");
-        testKullanici.setPassword("password");
-        testKullanici.setPuan(0);
-        testKullanici.setSeviye(0);
+        testKullanici = Kullanici.builder()
+                .id(1L)
+                .username("testuser")
+                .email("test@example.com")
+                .password("encodedPassword")
+                .points(0)
+                .level(1)
+                .build();
 
-        testRequestDTO = new KullaniciRequestDTO();
-        testRequestDTO.setKullaniciAdi("testuser");
-        testRequestDTO.setEmail("test@example.com");
-        testRequestDTO.setSifre("password");
+        testRequestDTO = KullaniciRequestDTO.builder()
+                .username("testuser")
+                .email("test@example.com")
+                .password("password")
+                .build();
+
+        userRol = Rol.builder()
+                .id(1L)
+                .ad("ROLE_USER")
+                .build();
     }
 
     @Test
-    void kullaniciOlustur_Basarili() {
+    void createKullanici_Basarili() {
         when(passwordEncoder.encode(any())).thenReturn("encodedPassword");
         when(kullaniciRepository.save(any())).thenReturn(testKullanici);
-        when(kullaniciRepository.findByKullaniciAdiOrEmail(any(), any())).thenReturn(Optional.empty());
+        when(rolRepository.findByAd("ROLE_USER")).thenReturn(Optional.of(userRol));
 
-        KullaniciResponseDTO response = kullaniciService.kullaniciOlustur(testRequestDTO);
+        KullaniciResponseDTO response = kullaniciService.createKullanici(testRequestDTO);
 
         assertNotNull(response);
-        assertEquals(testKullanici.getKullaniciAdi(), response.getKullaniciAdi());
+        assertEquals(testKullanici.getUsername(), response.getUsername());
         verify(kullaniciRepository).save(any());
-        verify(sehirService).sehirOlustur(any());
     }
 
     @Test
-    void kullaniciGetir_Basarili() {
+    void getKullaniciById_Basarili() {
         when(kullaniciRepository.findById(1L)).thenReturn(Optional.of(testKullanici));
 
-        KullaniciResponseDTO response = kullaniciService.kullaniciGetir(1L);
+        KullaniciResponseDTO response = kullaniciService.getKullaniciById(1L);
 
         assertNotNull(response);
-        assertEquals(testKullanici.getId(), response.getId());
+        assertEquals(testKullanici.getUsername(), response.getUsername());
     }
 
     @Test
-    void kullaniciGetir_Bulunamadi() {
+    void getKullaniciById_KullaniciBulunamadi() {
         when(kullaniciRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(RuntimeException.class, () -> kullaniciService.kullaniciGetir(1L));
+        assertThrows(ResourceNotFoundException.class, () -> kullaniciService.getKullaniciById(1L));
     }
 
     @Test
-    void kullaniciGuncelle_Basarili() {
+    void updateKullanici_Basarili() {
         when(kullaniciRepository.findById(1L)).thenReturn(Optional.of(testKullanici));
         when(kullaniciRepository.save(any())).thenReturn(testKullanici);
 
-        KullaniciResponseDTO response = kullaniciService.kullaniciGuncelle(1L, testRequestDTO);
+        KullaniciResponseDTO response = kullaniciService.updateKullanici(1L, testRequestDTO);
 
         assertNotNull(response);
-        verify(kullaniciRepository).save(any());
+        assertEquals(testKullanici.getUsername(), response.getUsername());
     }
 
     @Test
-    void kullaniciSil_Basarili() {
+    void updateKullanici_KullaniciBulunamadi() {
+        when(kullaniciRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> kullaniciService.updateKullanici(1L, testRequestDTO));
+    }
+
+    @Test
+    void deleteKullanici_Basarili() {
         when(kullaniciRepository.findById(1L)).thenReturn(Optional.of(testKullanici));
-        doNothing().when(kullaniciRepository).delete(any());
+        doNothing().when(kullaniciRepository).deleteById(1L);
 
-        kullaniciService.kullaniciSil(1L);
+        kullaniciService.deleteKullanici(1L);
 
-        verify(kullaniciRepository).delete(any());
+        verify(kullaniciRepository).deleteById(1L);
     }
 
     @Test
-    void puanEkle_Basarili() {
+    void deleteKullanici_KullaniciBulunamadi() {
+        when(kullaniciRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> kullaniciService.deleteKullanici(1L));
+        verify(kullaniciRepository, never()).deleteById(any());
+    }
+
+    @Test
+    void addPuan_Basarili() {
         when(kullaniciRepository.findById(1L)).thenReturn(Optional.of(testKullanici));
         when(kullaniciRepository.save(any())).thenReturn(testKullanici);
 
-        kullaniciService.puanEkle(1L, 100);
+        kullaniciService.addPuan(1L, 100);
 
-        assertEquals(100, testKullanici.getPuan());
+        assertEquals(100, testKullanici.getPoints());
         verify(kullaniciRepository).save(any());
-        verify(sehirService).puanEkle(any(), any());
     }
 
     @Test
-    void puanEkle_NegatifPuan() {
-        when(kullaniciRepository.findById(1L)).thenReturn(Optional.of(testKullanici));
-
-        assertThrows(IllegalArgumentException.class, () -> kullaniciService.puanEkle(1L, -100));
+    void addPuan_NegatifPuan() {
+        assertThrows(BusinessException.class, () -> kullaniciService.addPuan(1L, -100));
     }
 } 
