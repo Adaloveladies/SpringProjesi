@@ -2,13 +2,15 @@ package com.adaloveladies.SpringProjesi.service;
 
 import com.adaloveladies.SpringProjesi.dto.TaskRequestDTO;
 import com.adaloveladies.SpringProjesi.dto.TaskResponseDTO;
+import com.adaloveladies.SpringProjesi.exception.BusinessException;
+import com.adaloveladies.SpringProjesi.exception.ResourceNotFoundException;
 import com.adaloveladies.SpringProjesi.model.Building;
 import com.adaloveladies.SpringProjesi.model.Task;
 import com.adaloveladies.SpringProjesi.model.TaskStatus;
-import com.adaloveladies.SpringProjesi.model.User;
+import com.adaloveladies.SpringProjesi.model.Kullanici;
 import com.adaloveladies.SpringProjesi.repository.BuildingRepository;
 import com.adaloveladies.SpringProjesi.repository.TaskRepository;
-import com.adaloveladies.SpringProjesi.repository.UserRepository;
+import com.adaloveladies.SpringProjesi.repository.KullaniciRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,23 +28,25 @@ import java.util.stream.Collectors;
 public class TaskService {
 
     private final TaskRepository taskRepository;
-    private final UserRepository userRepository;
+    private final KullaniciRepository kullaniciRepository;
     private final BuildingRepository buildingRepository;
 
     // Puan hesaplama sabitleri
     private static final int BASE_POINTS = 10; // Temel puan
     private static final int LEVEL_UP_THRESHOLD = 50; // Seviye atlama eşiği (50 puan = 1 seviye)
     private static final int DAILY_TASK_LIMIT = 20; // Günlük görev limiti
-    private static final int MAX_FLOORS_PER_BUILDING = 10; // Bina başına maksimum kat sayısı
-
     /**
      * TaskRequestDTO'yu Task modeline dönüştürür
      */
     private Task convertToTask(TaskRequestDTO dto) {
         return Task.builder()
-                .title(dto.getTitle())
-                .description(dto.getDescription())
-                .status(dto.getStatus())
+                .baslik(dto.getBaslik())
+                .aciklama(dto.getAciklama())
+                .gorevTipi(dto.getGorevTipi())
+                .puanDegeri(dto.getPuanDegeri())
+                .sonTarih(dto.getBitisTarihi())
+                .tamamlandi(false)
+                .durum(TaskStatus.BEKLEMEDE)
                 .build();
     }
 
@@ -52,46 +56,47 @@ public class TaskService {
     private TaskResponseDTO convertToResponseDTO(Task task) {
         return TaskResponseDTO.builder()
                 .id(task.getId())
-                .title(task.getTitle())
-                .description(task.getDescription())
-                .status(task.getStatus())
-                .createdAt(task.getCreatedAt())
-                .completedAt(task.getCompletedAt())
-                .userId(task.getUser().getId())
-                .username(task.getUser().getUsername())
+                .baslik(task.getBaslik())
+                .aciklama(task.getAciklama())
+                .gorevTipi(task.getGorevTipi())
+                .puanDegeri(task.getPuanDegeri())
+                .bitisTarihi(task.getSonTarih())
+                .tamamlandi(task.isTamamlandi())
+                .olusturmaTarihi(task.getOlusturmaTarihi())
+                .kullaniciAdi(task.getKullanici().getUsername())
                 .build();
     }
 
     /**
      * Kullanıcının günlük görev oluşturma limitini kontrol eder
      */
-    private void checkDailyTaskCreationLimit(User user) {
+    private void checkDailyTaskCreationLimit(Kullanici kullanici) {
         LocalDate today = LocalDate.now();
-        long createdTasksToday = taskRepository.countByUserAndCreatedAtBetween(
-            user,
+        long createdTasksToday = taskRepository.countByKullaniciAndOlusturmaTarihiBetween(
+            kullanici,
             today.atStartOfDay(),
             today.plusDays(1).atStartOfDay()
         );
 
         if (createdTasksToday >= DAILY_TASK_LIMIT) {
-            throw new RuntimeException("Günlük görev oluşturma limitine ulaştınız. Yarın tekrar deneyin.");
+            throw new BusinessException("Günlük görev oluşturma limitine ulaştınız. Yarın tekrar deneyin.");
         }
     }
 
     /**
      * Kullanıcının günlük görev limitini kontrol eder
      */
-    private void checkDailyTaskLimit(User user) {
+    private void checkDailyTaskLimit(Kullanici kullanici) {
         LocalDate today = LocalDate.now();
-        long completedTasksToday = taskRepository.countByUserAndStatusAndCompletedAtBetween(
-            user, 
+        long completedTasksToday = taskRepository.countByKullaniciAndDurumAndTamamlanmaTarihiBetween(
+            kullanici, 
             TaskStatus.TAMAMLANDI,
             today.atStartOfDay(),
             today.plusDays(1).atStartOfDay()
         );
 
         if (completedTasksToday >= DAILY_TASK_LIMIT) {
-            throw new RuntimeException("Günlük görev limitine ulaştınız. Yarın tekrar deneyin.");
+            throw new BusinessException("Günlük görev limitine ulaştınız. Yarın tekrar deneyin.");
         }
     }
 
@@ -99,13 +104,14 @@ public class TaskService {
      * Yeni görev oluşturur
      */
     @Transactional
-    public TaskResponseDTO createTask(TaskRequestDTO taskDTO, User user) {
-        // Günlük görev oluşturma limitini kontrol et
-        checkDailyTaskCreationLimit(user);
+    public TaskResponseDTO createTask(TaskRequestDTO taskDTO, Kullanici kullanici) {
+        checkDailyTaskCreationLimit(kullanici);
 
         Task task = convertToTask(taskDTO);
-        task.setUser(user);
-        task.setStatus(TaskStatus.BEKLEMEDE);
+        task.setKullanici(kullanici);
+        task.setDurum(TaskStatus.BEKLEMEDE);
+        task.setOlusturmaTarihi(LocalDateTime.now());
+        
         Task savedTask = taskRepository.save(task);
         return convertToResponseDTO(savedTask);
     }
@@ -114,17 +120,17 @@ public class TaskService {
      * Görevi günceller
      */
     @Transactional
-    public TaskResponseDTO updateTask(Long taskId, TaskRequestDTO taskDTO, User user) {
+    public TaskResponseDTO updateTask(Long taskId, TaskRequestDTO taskDTO, Kullanici kullanici) {
         Task existingTask = taskRepository.findById(taskId)
-                .orElseThrow(() -> new RuntimeException("Görev bulunamadı"));
+                .orElseThrow(() -> new ResourceNotFoundException("Görev", "id", taskId));
 
-        if (!existingTask.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("Bu görevi güncelleme yetkiniz yok");
+        if (!existingTask.getKullanici().getId().equals(kullanici.getId())) {
+            throw new BusinessException("Bu görevi güncelleme yetkiniz yok");
         }
 
-        existingTask.setTitle(taskDTO.getTitle());
-        existingTask.setDescription(taskDTO.getDescription());
-        existingTask.setStatus(taskDTO.getStatus());
+        existingTask.setBaslik(taskDTO.getBaslik());
+        existingTask.setAciklama(taskDTO.getAciklama());
+        existingTask.setGorevTipi(taskDTO.getGorevTipi());
 
         Task updatedTask = taskRepository.save(existingTask);
         return convertToResponseDTO(updatedTask);
@@ -134,12 +140,12 @@ public class TaskService {
      * Görevi siler
      */
     @Transactional
-    public void deleteTask(Long taskId, User user) {
+    public void deleteTask(Long taskId, Kullanici kullanici) {
         Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new RuntimeException("Görev bulunamadı"));
+                .orElseThrow(() -> new ResourceNotFoundException("Görev", "id", taskId));
 
-        if (!task.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("Bu görevi silme yetkiniz yok");
+        if (!task.getKullanici().getId().equals(kullanici.getId())) {
+            throw new BusinessException("Bu görevi silme yetkiniz yok");
         }
 
         taskRepository.delete(task);
@@ -148,8 +154,8 @@ public class TaskService {
     /**
      * Kullanıcının tüm görevlerini getirir
      */
-    public List<TaskResponseDTO> getAllTasksByUser(User user) {
-        return taskRepository.findByUserOrderByCreatedAtDesc(user)
+    public List<TaskResponseDTO> getAllTasks(Kullanici kullanici) {
+        return taskRepository.findByKullanici(kullanici)
                 .stream()
                 .map(this::convertToResponseDTO)
                 .collect(Collectors.toList());
@@ -158,8 +164,8 @@ public class TaskService {
     /**
      * Kullanıcının belirli durumdaki görevlerini getirir
      */
-    public List<TaskResponseDTO> getTasksByStatus(User user, TaskStatus status) {
-        return taskRepository.findByUserAndStatusOrderByCreatedAtDesc(user, status)
+    public List<TaskResponseDTO> getTasksByStatus(Kullanici kullanici, TaskStatus durum) {
+        return taskRepository.findByKullaniciAndDurumOrderByOlusturmaTarihiDesc(kullanici, durum)
                 .stream()
                 .map(this::convertToResponseDTO)
                 .collect(Collectors.toList());
@@ -169,51 +175,54 @@ public class TaskService {
      * Görev tamamlandığında puan hesaplar ve kullanıcı seviyesini günceller
      */
     @Transactional
-    private void calculatePointsAndUpdateLevel(User user) {
+    private void calculatePointsAndUpdateLevel(Kullanici kullanici) {
         // Görev tamamlandığında temel puanı ekle
-        user.setScore(user.getScore() + BASE_POINTS);
+        kullanici.setPoints(kullanici.getPoints() + BASE_POINTS);
 
         // Seviye atlama kontrolü
-        int newLevel = (user.getScore() / LEVEL_UP_THRESHOLD) + 1;
-        if (newLevel > user.getLevel()) {
-            user.setLevel(newLevel);
+        int newLevel = (kullanici.getPoints() / LEVEL_UP_THRESHOLD) + 1;
+        if (newLevel > kullanici.getLevel()) {
+            kullanici.setLevel(newLevel);
             
             // Seviye atlandığında bina inşaatını kontrol et
-            Building nextBuilding = buildingRepository.findFirstByUserAndIsCompletedFalseOrderByRequiredLevelAsc(user);
-            if (nextBuilding != null && nextBuilding.getRequiredLevel() <= newLevel) {
+            Building nextBuilding = buildingRepository.findByKullaniciAndTamamlandiOrderByGerekliSeviyeAsc(kullanici, false)
+                    .stream()
+                    .findFirst()
+                    .orElse(null);
+            if (nextBuilding != null && nextBuilding.getGerekliSeviye() <= newLevel) {
                 // Bina inşaatını tamamla
-                nextBuilding.setIsCompleted(true);
-                nextBuilding.setCompletedAt(LocalDateTime.now());
+                nextBuilding.setTamamlandi(true);
+                nextBuilding.setTamamlanmaTarihi(LocalDateTime.now());
                 buildingRepository.save(nextBuilding);
             }
         }
 
-        userRepository.save(user);
+        kullaniciRepository.save(kullanici);
     }
 
     /**
      * Görev durumunu günceller
      */
     @Transactional
-    public TaskResponseDTO updateTaskStatus(Long taskId, TaskStatus newStatus, User user) {
+    public TaskResponseDTO updateTaskStatus(Long taskId, TaskStatus newStatus, Kullanici kullanici) {
         Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new RuntimeException("Görev bulunamadı"));
+                .orElseThrow(() -> new ResourceNotFoundException("Görev", "id", taskId));
 
-        if (!task.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("Bu görevi güncelleme yetkiniz yok");
+        if (!task.getKullanici().getId().equals(kullanici.getId())) {
+            throw new BusinessException("Bu görevi güncelleme yetkiniz yok");
         }
 
         // Eğer görev tamamlanıyorsa, günlük limit kontrolü yap
         if (newStatus == TaskStatus.TAMAMLANDI) {
-            checkDailyTaskLimit(user);
+            checkDailyTaskLimit(kullanici);
         }
 
-        task.setStatus(newStatus);
+        task.setDurum(newStatus);
         
         // Eğer görev tamamlandıysa, puan hesapla ve seviyeyi güncelle
         if (newStatus == TaskStatus.TAMAMLANDI) {
-            task.setCompletedAt(LocalDateTime.now());
-            calculatePointsAndUpdateLevel(user);
+            task.setTamamlanmaTarihi(LocalDateTime.now());
+            calculatePointsAndUpdateLevel(kullanici);
         }
 
         Task updatedTask = taskRepository.save(task);
@@ -223,78 +232,19 @@ public class TaskService {
     /**
      * Görevlerde arama yapar
      */
-    public List<TaskResponseDTO> searchTasks(User user, String searchTerm) {
-        return taskRepository.findByUserAndTitleContainingIgnoreCaseOrderByCreatedAtDesc(user, searchTerm)
+    public List<TaskResponseDTO> searchTasks(Kullanici kullanici, String searchTerm) {
+        return taskRepository.findByKullaniciAndBaslikContainingIgnoreCaseOrderByOlusturmaTarihiDesc(kullanici, searchTerm)
                 .stream()
                 .map(this::convertToResponseDTO)
                 .collect(Collectors.toList());
     }
 
-    @Transactional
-    private void updateBuildingProgress(User user) {
-        // Günlük tamamlanan görev sayısını al
-        LocalDate today = LocalDate.now();
-        long completedTasksToday = taskRepository.countByUserAndStatusAndCompletedAtBetween(
-            user, 
-            TaskStatus.TAMAMLANDI,
-            today.atStartOfDay(),
-            today.plusDays(1).atStartOfDay()
-        );
-
-        // Aktif binayı bul (tamamlanmamış ve en son oluşturulan)
-        Building activeBuilding = buildingRepository.findFirstByUserAndIsCompletedFalseOrderByIdDesc(user);
-        
-        if (activeBuilding == null) {
-            // Yeni bina oluştur
-            activeBuilding = Building.builder()
-                    .name("Yeni Bina")
-                    .description("Yeni inşa edilen bina")
-                    .requiredLevel(1)
-                    .floorCount(0)
-                    .dailyCompletedTasks(0)
-                    .isCompleted(false)
-                    .hasRoof(false)
-                    .user(user)
-                    .build();
-            activeBuilding = buildingRepository.save(activeBuilding);
+    public TaskResponseDTO getTaskById(Long taskId, Kullanici kullanici) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new ResourceNotFoundException("Görev", "id", taskId));
+        if (!task.getKullanici().getId().equals(kullanici.getId())) {
+            throw new BusinessException("Bu görevi görüntüleme yetkiniz yok");
         }
-
-        // Günlük tamamlanan görev sayısını artır
-        activeBuilding.setDailyCompletedTasks((int) completedTasksToday);
-
-        // Kat sayısını artır
-        activeBuilding.setFloorCount(activeBuilding.getFloorCount() + 1);
-
-        // Eğer bina 10 kata ulaştıysa
-        if (activeBuilding.getFloorCount() >= MAX_FLOORS_PER_BUILDING) {
-            // Binayı tamamla ve çatı ekle
-            activeBuilding.setIsCompleted(true);
-            activeBuilding.setHasRoof(true);
-            activeBuilding.setCompletedAt(LocalDateTime.now());
-            
-            // Eğer hala tamamlanmamış görevler varsa, yeni bir bina başlat
-            if (completedTasksToday < DAILY_TASK_LIMIT) {
-                Building newBuilding = Building.builder()
-                        .name("Yeni Bina")
-                        .description("Yeni inşa edilen bina")
-                        .requiredLevel(activeBuilding.getRequiredLevel() + 1)
-                        .floorCount(0)
-                        .dailyCompletedTasks((int) completedTasksToday)
-                        .isCompleted(false)
-                        .hasRoof(false)
-                        .user(user)
-                        .build();
-                buildingRepository.save(newBuilding);
-            }
-        }
-        // Eğer günlük görevler tamamlandıysa ve bina 10 kata ulaşmadıysa
-        else if (completedTasksToday >= DAILY_TASK_LIMIT) {
-            // Binayı tamamla ve çatı ekle
-            activeBuilding.setIsCompleted(true);
-            activeBuilding.setHasRoof(true);
-            activeBuilding.setCompletedAt(LocalDateTime.now());
-        }
-
-        buildingRepository.save(activeBuilding);
+        return convertToResponseDTO(task);
     }
 } 

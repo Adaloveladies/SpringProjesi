@@ -7,54 +7,68 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class SehirService {
 
     private final SehirRepository sehirRepository;
-    private final KullaniciService kullaniciService;
-    
-    private static final int SEVIYE_ATLAMA_PUANI = 100;
 
-    public Sehir sehirOlustur(Long kullaniciId) {
-        Kullanici kullanici = kullaniciService.findById(kullaniciId);
-        
+    public Sehir sehirOlustur(Kullanici kullanici) {
         Sehir sehir = Sehir.builder()
-                .ad("Yeni Şehir")
-                .seviye(0)
-                .toplamPuan(0)
-                .gorunum("sehir_0.png")
+                .name(kullanici.getUsername() + "'in Şehri")
+                .description("Yeni kurulmuş bir şehir")
                 .kullanici(kullanici)
-                .aktif(true)
-                .sonrakiSeviyePuani(SEVIYE_ATLAMA_PUANI)
                 .build();
-
         return sehirRepository.save(sehir);
     }
 
-    public Sehir sehirGetir(Long kullaniciId) {
-        return sehirRepository.findByKullaniciId(kullaniciId)
-                .orElseGet(() -> sehirOlustur(kullaniciId));
+    public Sehir sehirGuncelle(Long id, String name, String description) {
+        Sehir sehir = sehirRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Şehir bulunamadı"));
+        sehir.setName(name);
+        sehir.setDescription(description);
+        return sehirRepository.save(sehir);
     }
 
-    public void puanEkle(Long kullaniciId, Integer puan) {
-        Sehir sehir = sehirGetir(kullaniciId);
-        sehir.setToplamPuan(sehir.getToplamPuan() + puan);
-        
-        // Her seviye için gereken toplam puan: (seviye + 1) * 100
-        int sonrakiSeviyePuani = (sehir.getSeviye() + 1) * SEVIYE_ATLAMA_PUANI;
-        sehir.setSonrakiSeviyePuani(sonrakiSeviyePuani);
-        
-        if (sehir.seviyeAtlayabilirMi()) {
-            sehir.seviyeAtla();
-        }
-        
+    public void sehirSil(Long id) {
+        sehirRepository.deleteById(id);
+    }
+
+    public List<Sehir> tumSehirleriGetir() {
+        return sehirRepository.findAll();
+    }
+
+    public Optional<Sehir> sehirGetir(Long id) {
+        return sehirRepository.findById(id);
+    }
+
+    public Optional<Sehir> kullaniciSehriGetir(Kullanici kullanici) {
+        return sehirRepository.findByKullanici(kullanici);
+    }
+
+    public void puanEkle(Kullanici kullanici, int points) {
+        Sehir sehir = kullaniciSehriGetir(kullanici)
+                .orElseThrow(() -> new RuntimeException("Kullanıcının şehri bulunamadı"));
+        sehir.addPoints(points);
         sehirRepository.save(sehir);
     }
 
+    public void seviyeAtla(Long id) {
+        Sehir sehir = sehirRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Şehir bulunamadı"));
+        if (sehir.canLevelUp()) {
+            sehir.levelUp();
+            sehirRepository.save(sehir);
+        }
+    }
+
     public boolean seviyeAtlayabilirMi(Long kullaniciId) {
-        Sehir sehir = sehirGetir(kullaniciId);
-        return sehir.seviyeAtlayabilirMi();
+        return sehirRepository.findByKullaniciId(kullaniciId)
+                .map(Sehir::canLevelUp)
+                .orElse(false);
     }
 } 

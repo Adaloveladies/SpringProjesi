@@ -2,7 +2,7 @@ package com.adaloveladies.SpringProjesi.repository;
 
 import com.adaloveladies.SpringProjesi.model.Task;
 import com.adaloveladies.SpringProjesi.model.TaskStatus;
-import com.adaloveladies.SpringProjesi.model.User;
+import com.adaloveladies.SpringProjesi.model.Kullanici;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -18,44 +18,35 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     /**
      * Kullanıcıya ait tüm görevleri getirir
      */
-    List<Task> findByUser(User user);
-    
-    /**
-     * Kullanıcıya ait ve belirli durumdaki görevleri getirir
-     */
-    List<Task> findByUserAndStatus(User user, TaskStatus status);
-    
-    /**
-     * Kullanıcıya ait görevleri oluşturulma tarihine göre sıralar
-     */
-    List<Task> findByUserOrderByCreatedAtDesc(User user);
-    
-    /**
-     * Kullanıcıya ait görevleri duruma ve tarihe göre sıralar
-     */
-    List<Task> findByUserAndStatusOrderByCreatedAtDesc(User user, TaskStatus status);
+    List<Task> findByKullanici(Kullanici kullanici);
     
     /**
      * Kullanıcıya ait görevleri başlık veya açıklamada arama yapar
      */
-    List<Task> findByUserAndTitleContainingOrDescriptionContaining(User user, String title, String description);
+    List<Task> findByKullaniciAndBaslikContainingIgnoreCaseOrderByOlusturmaTarihiDesc(Kullanici kullanici, String searchTerm);
+    
+    /**
+     * Kullanıcıya ait görevleri oluşturulma tarihine göre sıralar
+     */
+    List<Task> findByKullaniciOrderByOlusturmaTarihiDesc(Kullanici kullanici);
+    
+    /**
+     * Kullanıcıya ait görevleri duruma ve tarihe göre sıralar
+     */
+    List<Task> findByKullaniciAndDurumOrderByOlusturmaTarihiDesc(Kullanici kullanici, TaskStatus durum);
+    
+    /**
+     * Kullanıcıya ait görevleri başlık veya açıklamada arama yapar
+     */
+    List<Task> findByKullaniciAndBaslikContainingOrAciklamaContaining(Kullanici kullanici, String baslik, String aciklama);
     
     // Günlük tamamlanan görev sayısını kontrol eden metod
-    long countByUserAndStatusAndCompletedAtBetween(
-        User user, 
-        TaskStatus status, 
-        LocalDateTime startDate, 
-        LocalDateTime endDate
-    );
+    long countByKullaniciAndOlusturmaTarihiBetween(Kullanici kullanici, LocalDateTime start, LocalDateTime end);
 
     // Günlük oluşturulan görev sayısını kontrol eden metod
-    long countByUserAndCreatedAtBetween(
-        User user,
-        LocalDateTime startDate,
-        LocalDateTime endDate
-    );
+    long countByKullaniciAndDurumAndTamamlanmaTarihiBetween(Kullanici kullanici, TaskStatus durum, LocalDateTime start, LocalDateTime end);
 
-    int countByUserAndStatus(User user, TaskStatus status);
+    int countByKullaniciAndDurum(Kullanici kullanici, TaskStatus durum);
 
-    List<Task> findByUserAndTitleContainingIgnoreCaseOrderByCreatedAtDesc(User user, String searchTerm);
+    List<Task> findByKullaniciAndBaslikContainingIgnoreCase(Kullanici kullanici, String baslik);
 } 

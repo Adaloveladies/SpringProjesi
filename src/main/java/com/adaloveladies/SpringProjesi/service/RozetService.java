@@ -2,7 +2,7 @@ package com.adaloveladies.SpringProjesi.service;
 
 import com.adaloveladies.SpringProjesi.model.Rozet;
 import com.adaloveladies.SpringProjesi.model.Kullanici;
-import com.adaloveladies.SpringProjesi.model.Bildirim.BildirimTipi;
+import com.adaloveladies.SpringProjesi.model.Bildirim;
 import com.adaloveladies.SpringProjesi.repository.RozetRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,14 +11,16 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class RozetService {
     
     private final RozetRepository rozetRepository;
     private final BildirimService bildirimService;
     
-    @Transactional
+    @SuppressWarnings("incomplete-switch")
+	@Transactional
     public void puanKontroluVeRozetVer(Kullanici kullanici) {
-        int puan = kullanici.getPuan();
+        int puan = kullanici.getPoints();
         Rozet.RozetTipi yeniTip = null;
         
         // Puan kontrolü ve rozet tipi belirleme
@@ -31,9 +33,10 @@ public class RozetService {
         }
         
         if (yeniTip != null) {
-            Rozet rozet = new Rozet();
-            rozet.setKullanici(kullanici);
-            rozet.setTip(yeniTip);
+            Rozet rozet = Rozet.builder()
+                .kullanici(kullanici)
+                .tip(yeniTip)
+                .build();
             
             // Rozet bilgilerini ayarla
             switch (yeniTip) {
@@ -62,7 +65,7 @@ public class RozetService {
                 kullanici,
                 "Yeni Rozet Kazandın!",
                 rozet.getAd() + " rozetini kazandın! " + rozet.getAciklama(),
-                BildirimTipi.ROZET_KAZANILDI
+                Bildirim.BildirimTipi.ROZET
             );
         }
     }

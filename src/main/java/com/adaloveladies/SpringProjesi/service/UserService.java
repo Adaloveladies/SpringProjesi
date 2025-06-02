@@ -2,7 +2,7 @@ package com.adaloveladies.SpringProjesi.service;
 
 import com.adaloveladies.SpringProjesi.dto.UserRequestDTO;
 import com.adaloveladies.SpringProjesi.dto.UserResponseDTO;
-import com.adaloveladies.SpringProjesi.model.User;
+import com.adaloveladies.SpringProjesi.model.Kullanici;
 import com.adaloveladies.SpringProjesi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,7 +31,7 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("Kullanıcı bulunamadı: " + username));
     }
 
-    public User findByUsername(String username) {
+    public Kullanici findByUsername(String username) {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Kullanıcı bulunamadı: " + username));
     }
@@ -59,15 +60,19 @@ public class UserService implements UserDetailsService {
             throw new RuntimeException("Bu kullanıcı adı zaten kullanılıyor");
         }
 
-        User user = User.builder()
+        Kullanici kullanici = Kullanici.builder()
                 .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
+                .email(request.getEmail())
                 .level(1)
-                .score(0)
+                .points(0)
+                .completedTaskCount(0)
+                .active(true)
+                .creationDate(LocalDateTime.now())
                 .build();
 
-        User savedUser = userRepository.save(user);
-        return convertToResponseDTO(savedUser);
+        Kullanici savedKullanici = userRepository.save(kullanici);
+        return convertToResponseDTO(savedKullanici);
     }
 
     /**
@@ -83,20 +88,22 @@ public class UserService implements UserDetailsService {
      * Kullanıcı profilini getirir
      */
     public UserResponseDTO getUserProfile(String username) {
-        User user = userRepository.findByUsername(username)
+        Kullanici kullanici = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı"));
-        return convertToResponseDTO(user);
+        return convertToResponseDTO(kullanici);
     }
 
     /**
-     * User modelini UserResponseDTO'ya dönüştürür
+     * Kullanici modelini UserResponseDTO'ya dönüştürür
      */
-    private UserResponseDTO convertToResponseDTO(User user) {
+    private UserResponseDTO convertToResponseDTO(Kullanici kullanici) {
         return UserResponseDTO.builder()
-                .id(user.getId())
-                .username(user.getUsername())
-                .level(user.getLevel())
-                .score(user.getScore())
+                .id(kullanici.getId())
+                .username(kullanici.getUsername())
+                .email(kullanici.getEmail())
+                .level(kullanici.getLevel())
+                .points(kullanici.getPoints())
+                .completedTaskCount(kullanici.getCompletedTaskCount())
                 .build();
     }
 }

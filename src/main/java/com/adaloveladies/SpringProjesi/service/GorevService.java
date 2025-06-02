@@ -2,10 +2,9 @@ package com.adaloveladies.SpringProjesi.service;
 
 import com.adaloveladies.SpringProjesi.dto.GorevRequestDTO;
 import com.adaloveladies.SpringProjesi.dto.GorevResponseDTO;
-import com.adaloveladies.SpringProjesi.model.Gorev;
-import com.adaloveladies.SpringProjesi.model.GorevDurumu;
-import com.adaloveladies.SpringProjesi.model.Kullanici;
-import com.adaloveladies.SpringProjesi.model.Bildirim;
+import com.adaloveladies.SpringProjesi.exception.BusinessException;
+import com.adaloveladies.SpringProjesi.exception.ResourceNotFoundException;
+import com.adaloveladies.SpringProjesi.model.*;
 import com.adaloveladies.SpringProjesi.repository.GorevRepository;
 import com.adaloveladies.SpringProjesi.repository.KullaniciRepository;
 import lombok.RequiredArgsConstructor;
@@ -30,149 +29,138 @@ public class GorevService {
     private static final int GUNLUK_GOREV_LIMITI = 20;
 
     public GorevResponseDTO gorevOlustur(GorevRequestDTO requestDTO, String username) {
-        Kullanici kullanici = kullaniciRepository.findByKullaniciAdi(username)
-            .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı"));
-        // Günlük görev limitini kontrol et
+        Kullanici kullanici = kullaniciRepository.findByUsername(username)
+            .orElseThrow(() -> new ResourceNotFoundException("Kullanıcı", "kullanıcı adı", username));
+
         long bugunTamamlananGorevSayisi = gorevRepository.countByKullaniciAndDurumAndTamamlanmaTarihiBetween(
             kullanici, 
-            GorevDurumu.TAMAMLANDI,
+            TaskStatus.TAMAMLANDI,
             LocalDate.now().atStartOfDay(),
             LocalDate.now().atTime(23, 59, 59)
         );
+        
         if (bugunTamamlananGorevSayisi >= GUNLUK_GOREV_LIMITI) {
-            throw new RuntimeException("Günlük görev limitine ulaştınız. Yarın tekrar deneyin.");
+            throw new BusinessException("Günlük görev limitine ulaştınız. Yarın tekrar deneyin.");
         }
-        Gorev gorev = Gorev.builder()
+
+        Task gorev = Task.builder()
                 .baslik(requestDTO.getBaslik())
                 .aciklama(requestDTO.getAciklama())
-                .puanDegeri(requestDTO.getTip().getPuanDegeri())
+                .puanDegeri(calculatePoints(requestDTO.getGorevTipi()))
                 .sonTarih(requestDTO.getSonTarih())
-                .tip(requestDTO.getTip())
+                .gorevTipi(requestDTO.getGorevTipi())
                 .kullanici(kullanici)
-                .durum(GorevDurumu.AKTIF)
+                .durum(TaskStatus.BEKLEMEDE)
                 .build();
-        return gorevToResponseDTO(gorevRepository.save(gorev));
+
+        gorev = gorevRepository.save(gorev);
+        bildirimService.bildirimGonder(
+            kullanici,
+            "Yeni Görev Oluşturuldu",
+            gorev.getBaslik() + " görevi oluşturuldu.",
+            Bildirim.BildirimTipi.GOREV
+        );
+        
+        return gorevToResponseDTO(gorev);
+    }
+
+    private int calculatePoints(GorevTipi gorevTipi) {
+        switch (gorevTipi) {
+            case GUNLUK:
+                return 10;
+            case HAFTALIK:
+                return 50;
+            case AYLIK:
+                return 200;
+            case OZEL:
+                return 100;
+            default:
+                return 0;
+        }
     }
 
     public List<GorevResponseDTO> gorevleriListele(String username) {
-        Kullanici kullanici = kullaniciRepository.findByKullaniciAdi(username)
-            .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı"));
+        Kullanici kullanici = kullaniciRepository.findByUsername(username)
+            .orElseThrow(() -> new ResourceNotFoundException("Kullanıcı", "kullanıcı adı", username));
         return gorevRepository.findByKullanici(kullanici).stream()
                 .map(this::gorevToResponseDTO)
                 .collect(Collectors.toList());
     }
 
     public GorevResponseDTO gorevDetay(Long id, String username) {
-        Kullanici kullanici = kullaniciRepository.findByKullaniciAdi(username)
-            .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı"));
-        Gorev gorev = gorevRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Görev bulunamadı"));
+        Kullanici kullanici = kullaniciRepository.findByUsername(username)
+            .orElseThrow(() -> new ResourceNotFoundException("Kullanıcı", "kullanıcı adı", username));
+        Task gorev = gorevRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Görev", "id", id));
         if (!gorev.getKullanici().equals(kullanici)) {
-            throw new RuntimeException("Bu göreve erişim yetkiniz yok");
+            throw new BusinessException("Bu göreve erişim yetkiniz yok");
         }
         return gorevToResponseDTO(gorev);
     }
 
     public GorevResponseDTO gorevGuncelle(Long id, GorevRequestDTO requestDTO, String username) {
-        Kullanici kullanici = kullaniciRepository.findByKullaniciAdi(username)
-            .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı"));
-        Gorev gorev = gorevRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Görev bulunamadı"));
+        Kullanici kullanici = kullaniciRepository.findByUsername(username)
+            .orElseThrow(() -> new ResourceNotFoundException("Kullanıcı", "kullanıcı adı", username));
+        Task gorev = gorevRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Görev", "id", id));
         if (!gorev.getKullanici().equals(kullanici)) {
-            throw new RuntimeException("Bu görevi güncelleme yetkiniz yok");
+            throw new BusinessException("Bu görevi güncelleme yetkiniz yok");
         }
         gorev.setBaslik(requestDTO.getBaslik());
         gorev.setAciklama(requestDTO.getAciklama());
-        gorev.setPuanDegeri(requestDTO.getTip().getPuanDegeri());
+        gorev.setPuanDegeri(calculatePoints(requestDTO.getGorevTipi()));
         gorev.setSonTarih(requestDTO.getSonTarih());
-        gorev.setTip(requestDTO.getTip());
+        gorev.setGorevTipi(requestDTO.getGorevTipi());
         return gorevToResponseDTO(gorevRepository.save(gorev));
     }
 
     public void gorevSil(Long id, String username) {
-        Kullanici kullanici = kullaniciRepository.findByKullaniciAdi(username)
-            .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı"));
-        Gorev gorev = gorevRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Görev bulunamadı"));
+        Kullanici kullanici = kullaniciRepository.findByUsername(username)
+            .orElseThrow(() -> new ResourceNotFoundException("Kullanıcı", "kullanıcı adı", username));
+        Task gorev = gorevRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Görev", "id", id));
         if (!gorev.getKullanici().equals(kullanici)) {
-            throw new RuntimeException("Bu görevi silme yetkiniz yok");
+            throw new BusinessException("Bu görevi silme yetkiniz yok");
         }
         gorevRepository.delete(gorev);
     }
 
     @Transactional
     public GorevResponseDTO gorevTamamla(Long gorevId, String username) {
-        Kullanici kullanici = kullaniciRepository.findByKullaniciAdi(username)
-            .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı"));
-        Gorev gorev = gorevRepository.findById(gorevId)
-            .orElseThrow(() -> new RuntimeException("Görev bulunamadı"));
+        Kullanici kullanici = kullaniciRepository.findByUsername(username)
+            .orElseThrow(() -> new ResourceNotFoundException("Kullanıcı", "kullanıcı adı", username));
+        Task gorev = gorevRepository.findById(gorevId)
+            .orElseThrow(() -> new ResourceNotFoundException("Görev", "id", gorevId));
         if (!gorev.getKullanici().equals(kullanici)) {
-            throw new RuntimeException("Bu görevi tamamlama yetkiniz yok");
+            throw new BusinessException("Bu görevi tamamlama yetkiniz yok");
         }
-        if (gorev.getDurum() == GorevDurumu.TAMAMLANDI) {
-            throw new RuntimeException("Görev zaten tamamlanmış");
+        if (gorev.getDurum() == TaskStatus.TAMAMLANDI) {
+            throw new BusinessException("Görev zaten tamamlanmış");
         }
-        gorev.setDurum(GorevDurumu.TAMAMLANDI);
+        gorev.setDurum(TaskStatus.TAMAMLANDI);
         gorev.setTamamlanmaTarihi(LocalDateTime.now());
-        // Puan ekle (görev tipine göre)
-        kullanici.setPuan(kullanici.getPuan() + gorev.getPuanDegeri());
-        // Seviye kontrolü
-        int yeniSeviye = (kullanici.getPuan() / 100) + 1;
-        if (yeniSeviye > kullanici.getSeviye()) {
-            kullanici.setSeviye(yeniSeviye);
+        
+        kullanici.setPoints(kullanici.getPoints() + gorev.getPuanDegeri());
+        kullanici.setCompletedTaskCount(kullanici.getCompletedTaskCount() + 1);
+        
+        int yeniSeviye = (kullanici.getPoints() / 100) + 1;
+        if (yeniSeviye > kullanici.getLevel()) {
+            kullanici.setLevel(yeniSeviye);
             bildirimService.bildirimGonder(
                 kullanici,
                 "Tebrikler!",
                 "Seviye " + yeniSeviye + "'e yükseldin!",
-                Bildirim.BildirimTipi.SEVIYE_ATLANDI
+                Bildirim.BildirimTipi.SEVIYE_ATLAMA
             );
         }
-        // Rozet kontrolü
+        
         rozetService.puanKontroluVeRozetVer(kullanici);
-        // Rutin kontrolü ve yeni görev oluşturma
-        if (gorev.getRutinOlustur() != null && gorev.getRutinOlustur() && gorev.getTekrar() != null) {
-            rutinGorevOlustur(gorev, kullanici);
-        }
+        
         kullaniciRepository.save(kullanici);
         return gorevToResponseDTO(gorevRepository.save(gorev));
     }
 
-    private void rutinGorevOlustur(Gorev tamamlananGorev, Kullanici kullanici) {
-        LocalDateTime yeniSonTarih = null;
-        switch (tamamlananGorev.getTekrar()) {
-            case GUNLUK:
-                yeniSonTarih = LocalDateTime.now().plusDays(1);
-                break;
-            case HAFTALIK:
-                yeniSonTarih = LocalDateTime.now().plusWeeks(1);
-                break;
-            case AYLIK:
-                yeniSonTarih = LocalDateTime.now().plusMonths(1);
-                break;
-            default:
-                return;
-        }
-        Gorev yeniGorev = Gorev.builder()
-            .baslik(tamamlananGorev.getBaslik())
-            .aciklama(tamamlananGorev.getAciklama())
-            .puanDegeri(tamamlananGorev.getPuanDegeri())
-            .sonTarih(yeniSonTarih)
-            .tip(tamamlananGorev.getTip())
-            .tekrar(tamamlananGorev.getTekrar())
-            .rutinOlustur(tamamlananGorev.getRutinOlustur())
-            .kullanici(kullanici)
-            .durum(GorevDurumu.AKTIF)
-            .build();
-        gorevRepository.save(yeniGorev);
-        bildirimService.bildirimGonder(
-            kullanici,
-            "Yeni Rutin Görev Oluşturuldu",
-            tamamlananGorev.getBaslik() + " görevi için yeni bir rutin oluşturuldu. Son tarih: " + yeniSonTarih,
-            Bildirim.BildirimTipi.SISTEM_UYARI
-        );
-    }
-
-    private GorevResponseDTO gorevToResponseDTO(Gorev gorev) {
+    private GorevResponseDTO gorevToResponseDTO(Task gorev) {
         return GorevResponseDTO.builder()
                 .id(gorev.getId())
                 .baslik(gorev.getBaslik())
@@ -180,9 +168,9 @@ public class GorevService {
                 .puanDegeri(gorev.getPuanDegeri())
                 .sonTarih(gorev.getSonTarih())
                 .durum(gorev.getDurum())
-                .tip(gorev.getTip())
+                .gorevTipi(gorev.getGorevTipi())
                 .kullaniciId(gorev.getKullanici().getId())
-                .kullaniciAdi(gorev.getKullanici().getKullaniciAdi())
+                .username(gorev.getKullanici().getUsername())
                 .olusturmaTarihi(gorev.getOlusturmaTarihi())
                 .tamamlanmaTarihi(gorev.getTamamlanmaTarihi())
                 .build();

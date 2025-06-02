@@ -2,7 +2,7 @@ package com.adaloveladies.SpringProjesi.service;
 
 import com.adaloveladies.SpringProjesi.model.Istatistik;
 import com.adaloveladies.SpringProjesi.model.Kullanici;
-import com.adaloveladies.SpringProjesi.model.GorevDurumu;
+import com.adaloveladies.SpringProjesi.model.TaskStatus;
 import com.adaloveladies.SpringProjesi.repository.IstatistikRepository;
 import com.adaloveladies.SpringProjesi.repository.GorevRepository;
 import com.adaloveladies.SpringProjesi.repository.RozetRepository;
@@ -31,73 +31,57 @@ public class IstatistikService {
     @Transactional
     @CacheEvict(value = "istatistikler", key = "#kullanici.id")
     public void istatistikleriGuncelle(Kullanici kullanici) {
-        var istatistik = istatistikRepository.findByKullanici(kullanici)
-            .orElse(new Istatistik(kullanici));
-            
-        // Görev istatistikleri
-        istatistik.setToplamGorevSayisi((int) gorevRepository.countByKullanici(kullanici));
-        istatistik.setTamamlananGorevSayisi((int) gorevRepository.countByKullaniciAndDurum(kullanici, GorevDurumu.TAMAMLANDI));
-        
-        // Zaman bazlı görev sayıları
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime gunBasi = now.toLocalDate().atStartOfDay();
-        LocalDateTime haftaBasi = now.minusDays(now.getDayOfWeek().getValue() - 1).toLocalDate().atStartOfDay();
-        LocalDateTime ayBasi = now.withDayOfMonth(1).toLocalDate().atStartOfDay();
-        
-        istatistik.setGunlukGorevSayisi((int) gorevRepository.countByKullaniciAndDurumAndTamamlanmaTarihiBetween(
-            kullanici, GorevDurumu.TAMAMLANDI, gunBasi, now));
-        istatistik.setHaftalikGorevSayisi((int) gorevRepository.countByKullaniciAndDurumAndTamamlanmaTarihiBetween(
-            kullanici, GorevDurumu.TAMAMLANDI, haftaBasi, now));
-        istatistik.setAylikGorevSayisi((int) gorevRepository.countByKullaniciAndDurumAndTamamlanmaTarihiBetween(
-            kullanici, GorevDurumu.TAMAMLANDI, ayBasi, now));
-        
-        // Puan ve rozet istatistikleri
-        istatistik.setToplamPuan(kullanici.getPuan());
-        istatistik.setKazanilanRozetSayisi((int) rozetRepository.countByKullanici(kullanici));
-        
+        Istatistik istatistik = getKullaniciIstatistikleri(kullanici);
+        istatistik.setTamamlananGorevSayisi((int) gorevRepository.countByKullaniciAndDurum(kullanici, TaskStatus.TAMAMLANDI));
+        istatistik.setToplamPuan(kullanici.getPoints());
+        istatistik.setSeviye(kullanici.getLevel());
+        istatistik.setBasarimSayisi((int) rozetRepository.countByKullanici(kullanici));
         istatistikRepository.save(istatistik);
     }
     
     @Cacheable(value = "genelIstatistikler")
     public Map<String, Object> getGenelIstatistikler() {
-        double ortalamaBasariOrani = istatistikRepository.calculateAverageSuccessRate();
-        long toplamKullanici = istatistikRepository.count();
-        long yuksekBasariOraniKullanici = istatistikRepository.countByBasariOraniGreaterThan(80.0);
-
-        return Map.of(
-            "ortalamaBasariOrani", ortalamaBasariOrani,
-            "toplamKullanici", toplamKullanici,
-            "yuksekBasariOraniKullanici", yuksekBasariOraniKullanici
-        );
+        Map<String, Object> istatistikler = new HashMap<>();
+        istatistikler.put("toplamKullanici", istatistikRepository.count());
+        istatistikler.put("toplamGorev", gorevRepository.countByDurum(TaskStatus.TAMAMLANDI));
+        istatistikler.put("toplamPuan", istatistikRepository.sumToplamPuan());
+        return istatistikler;
     }
     
     @Cacheable(value = "istatistikler", key = "#kullanici.id")
     public Istatistik getKullaniciIstatistikleri(Kullanici kullanici) {
         return istatistikRepository.findByKullanici(kullanici)
-                .orElseGet(() -> {
-                    Istatistik istatistik = new Istatistik();
-                    istatistik.setKullanici(kullanici);
-                    return istatistikRepository.save(istatistik);
-                });
+                .orElseGet(() -> Istatistik.builder()
+                        .kullanici(kullanici)
+                        .tamamlananGorevSayisi(0)
+                        .toplamPuan(0)
+                        .seviye(1)
+                        .basarimSayisi(0)
+                        .build());
     }
 
     public List<Map<String, Object>> getEnAktifKullanicilar(int limit) {
-        return istatistikRepository.findTopByOrderByToplamGorevSayisiDesc(PageRequest.of(0, limit))
+        return istatistikRepository.findTopByOrderByTamamlananGorevSayisiDesc(PageRequest.of(0, limit))
                 .stream()
                 .map(istatistik -> {
                     Map<String, Object> map = new HashMap<>();
                     map.put("kullaniciId", istatistik.getKullanici().getId());
                     map.put("kullaniciAdi", istatistik.getKullanici().getUsername());
-                    map.put("toplamGorev", istatistik.getToplamGorevSayisi());
-                    map.put("basariOrani", istatistik.getBasariOrani());
+                    map.put("toplamGorev", istatistik.getTamamlananGorevSayisi());
+                    map.put("basariOrani", calculateBasariOrani(istatistik));
                     return map;
                 })
                 .collect(Collectors.toList());
     }
 
+    private double calculateBasariOrani(Istatistik istatistik) {
+        long toplamGorev = gorevRepository.countByKullanici(istatistik.getKullanici());
+        return toplamGorev > 0 ? (double) istatistik.getTamamlananGorevSayisi() / toplamGorev * 100 : 0;
+    }
+
     public Map<String, Object> getGunlukIstatistikler() {
         LocalDateTime bugun = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0);
-        long bugunTamamlananGorev = istatistikRepository.countByTamamlanmaTarihiAfter(bugun);
+        long bugunTamamlananGorev = gorevRepository.countByTamamlanmaTarihiAfter(bugun);
         long bugunYeniKullanici = istatistikRepository.countByKayitTarihiAfter(bugun);
 
         return Map.of(

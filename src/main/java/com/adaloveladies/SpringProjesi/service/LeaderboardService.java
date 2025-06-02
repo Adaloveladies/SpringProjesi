@@ -1,8 +1,8 @@
 package com.adaloveladies.SpringProjesi.service;
 
 import com.adaloveladies.SpringProjesi.dto.LeaderboardDTO;
-import com.adaloveladies.SpringProjesi.model.User;
-import com.adaloveladies.SpringProjesi.repository.UserRepository;
+import com.adaloveladies.SpringProjesi.model.Kullanici;
+import com.adaloveladies.SpringProjesi.repository.KullaniciRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -12,49 +12,40 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class LeaderboardService {
+    private final KullaniciRepository kullaniciRepository;
 
-    private final UserRepository userRepository;
-
-    public List<LeaderboardDTO> getLeaderboard() {
-        return userRepository.findAll().stream()
-                .map(this::convertToLeaderboardDTO)
-                .sorted((a, b) -> {
-                    // Önce puanlara göre sırala
-                    int scoreCompare = b.getScore().compareTo(a.getScore());
-                    if (scoreCompare != 0) {
-                        return scoreCompare;
-                    }
-                    // Puanlar eşitse seviyeye göre sırala
-                    int levelCompare = b.getLevel().compareTo(a.getLevel());
-                    if (levelCompare != 0) {
-                        return levelCompare;
-                    }
-                    // Seviyeler de eşitse tamamlanan bina sayısına göre sırala
-                    return b.getCompletedBuildings().compareTo(a.getCompletedBuildings());
-                })
-                .collect(Collectors.toList());
+    public List<LeaderboardDTO> getGlobalLeaderboard() {
+        List<Kullanici> kullanicilar = kullaniciRepository.findTop10ByOrderByPointsDesc();
+        return mapToLeaderboardDTO(kullanicilar);
     }
 
     public List<LeaderboardDTO> getTopBuilders() {
-        return userRepository.findAll().stream()
-                .map(this::convertToLeaderboardDTO)
-                .sorted((a, b) -> b.getCompletedBuildings().compareTo(a.getCompletedBuildings()))
-                .collect(Collectors.toList());
+        List<Kullanici> kullanicilar = kullaniciRepository.findTop10ByOrderByCompletedTaskCountDesc();
+        return mapToLeaderboardDTO(kullanicilar);
     }
 
     public LeaderboardDTO getUserRanking(Long userId) {
-        User user = userRepository.findById(userId)
+        Kullanici kullanici = kullaniciRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı"));
-        return convertToLeaderboardDTO(user);
+        
+        long rank = kullaniciRepository.countByPointsGreaterThan(kullanici.getPoints()) + 1;
+        
+        return LeaderboardDTO.builder()
+                .userId(kullanici.getId())
+                .username(kullanici.getUsername())
+                .points(kullanici.getPoints())
+                .rank((int) rank)
+                .build();
     }
 
-    private LeaderboardDTO convertToLeaderboardDTO(User user) {
-        return LeaderboardDTO.builder()
-                .id(user.getId())
-                .username(user.getUsername())
-                .score(user.getScore())
-                .level(user.getLevel())
-                .completedBuildings(user.getCompletedBuildings())
-                .build();
+    private List<LeaderboardDTO> mapToLeaderboardDTO(List<Kullanici> kullanicilar) {
+        return kullanicilar.stream()
+                .map(kullanici -> LeaderboardDTO.builder()
+                        .userId(kullanici.getId())
+                        .username(kullanici.getUsername())
+                        .points(kullanici.getPoints())
+                        .rank(kullanicilar.indexOf(kullanici) + 1)
+                        .build())
+                .collect(Collectors.toList());
     }
 } 

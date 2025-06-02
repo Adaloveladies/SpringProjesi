@@ -1,64 +1,83 @@
 package com.adaloveladies.SpringProjesi.service;
 
 import com.adaloveladies.SpringProjesi.model.Building;
-import com.adaloveladies.SpringProjesi.model.User;
+import com.adaloveladies.SpringProjesi.model.Kullanici;
 import com.adaloveladies.SpringProjesi.repository.BuildingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class BuildingService {
-
     private final BuildingRepository buildingRepository;
 
-    /**
-     * Kullanıcının tüm binalarını getirir
-     */
-    public List<Building> getAllBuildings(User user) {
-        return buildingRepository.findByUserOrderByRequiredLevelAsc(user);
-    }
-
-    /**
-     * Kullanıcının tamamlanmamış binalarını getirir
-     */
-    public List<Building> getIncompleteBuildings(User user) {
-        return buildingRepository.findByUserAndIsCompletedFalseOrderByRequiredLevelAsc(user);
-    }
-
-    /**
-     * Kullanıcının bir sonraki inşa edilecek binasını getirir
-     */
-    public Building getNextBuilding(User user) {
-        return buildingRepository.findFirstByUserAndIsCompletedFalseOrderByRequiredLevelAsc(user);
-    }
-
-    /**
-     * Yeni bina oluşturur
-     */
     @Transactional
-    public Building createBuilding(Building building, User user) {
-        building.setUser(user);
-        building.setIsCompleted(false);
+    public Building binaOlustur(Kullanici kullanici, String ad, String aciklama) {
+        Building building = Building.builder()
+                .ad(ad)
+                .aciklama(aciklama)
+                .kullanici(kullanici)
+                .build();
         return buildingRepository.save(building);
     }
 
-    /**
-     * Bina durumunu günceller
-     */
     @Transactional
-    public Building updateBuildingStatus(Long buildingId, boolean isCompleted, User user) {
-        Building building = buildingRepository.findById(buildingId)
+    public Building binaGuncelle(Long id, String ad, String aciklama) {
+        Building building = buildingRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Bina bulunamadı"));
+        building.setAd(ad);
+        building.setAciklama(aciklama);
+        return buildingRepository.save(building);
+    }
 
-        if (!building.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("Bu binayı güncelleme yetkiniz yok");
+    @Transactional
+    public void binaSil(Long id) {
+        buildingRepository.deleteById(id);
+    }
+
+    public List<Building> tumBinalariGetir() {
+        return buildingRepository.findAll();
+    }
+
+    public Optional<Building> binaGetir(Long id) {
+        return buildingRepository.findById(id);
+    }
+
+    public List<Building> kullaniciBinalariniGetir(Kullanici kullanici) {
+        return buildingRepository.findByKullaniciAndTamamlandiOrderByGerekliSeviyeAsc(kullanici, false);
+    }
+
+    @Transactional
+    public Building katEkle(Long id) {
+        Building building = buildingRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Bina bulunamadı"));
+        building.setKatSayisi(building.getKatSayisi() + 1);
+        return buildingRepository.save(building);
+    }
+
+    @Transactional
+    public Building catiEkle(Long id) {
+        Building building = buildingRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Bina bulunamadı"));
+        if (!building.isHasRoof()) {
+            building.setHasRoof(true);
+            building.setTamamlandi(true);
+            building.setTamamlanmaTarihi(LocalDateTime.now());
+            return buildingRepository.save(building);
         }
+        throw new RuntimeException("Bina zaten çatıya sahip");
+    }
 
-        building.setIsCompleted(isCompleted);
+    @Transactional
+    public Building gorevTamamla(Long id) {
+        Building building = buildingRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Bina bulunamadı"));
+        building.setGunlukTamamlananGorevSayisi(building.getGunlukTamamlananGorevSayisi() + 1);
         return buildingRepository.save(building);
     }
 } 

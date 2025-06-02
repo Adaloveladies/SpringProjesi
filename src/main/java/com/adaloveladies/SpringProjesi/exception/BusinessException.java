@@ -1,13 +1,16 @@
 package com.adaloveladies.SpringProjesi.exception;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-public class BusinessException extends BaseException {
+@ResponseStatus(HttpStatus.BAD_REQUEST)
+public class BusinessException extends RuntimeException {
+    
     public BusinessException(String message) {
-        super(HttpStatus.BAD_REQUEST, message, "BUSINESS_ERROR");
+        super(message);
     }
-
-    public BusinessException(String message, String errorCode) {
-        super(HttpStatus.BAD_REQUEST, message, errorCode);
+    
+    public BusinessException(String message, Throwable cause) {
+        super(message, cause);
     }
 } 
