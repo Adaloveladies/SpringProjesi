@@ -13,9 +13,10 @@ public interface BuildingRepository extends JpaRepository<Building, Long> {
     
     List<Building> findByKullaniciAndTamamlandiOrderByGerekliSeviyeAsc(Kullanici kullanici, Boolean tamamlandi);
     
-    List<Building> findByKullaniciAndAdContainingIgnoreCaseOrderByGerekliSeviyeAsc(Kullanici kullanici, String ad);
-    
     long countByKullaniciAndTamamlandi(Kullanici kullanici, Boolean tamamlandi);
     
     List<Building> findByGerekliSeviyeOrderByGerekliSeviyeAsc(Integer gerekliSeviye);
+
+    List<Building> findByKullaniciId(Long kullaniciId);
+    List<Building> findByKullaniciIdAndTamamlandi(Long kullaniciId, boolean tamamlandi);
 } 
