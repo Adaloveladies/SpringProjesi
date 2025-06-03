@@ -1,26 +1,20 @@
 package com.adaloveladies.SpringProjesi.dto;
 
-import com.adaloveladies.SpringProjesi.model.GorevTipi;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.time.LocalDateTime;
+import com.adaloveladies.SpringProjesi.model.GorevTipi;
 
 /**
  * Görev oluşturma ve güncelleme istekleri için DTO
  */
 @Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class GorevRequestDTO {
     private String baslik;
     private String aciklama;
-    private int puanDegeri;
-    private GorevTipi gorevTipi;
+    private Integer puanDegeri;
     private LocalDateTime sonTarih;
+    private GorevTipi gorevTipi;
+    private String durum;
 
     public String getBaslik() {
         return baslik;
@@ -38,12 +32,12 @@ public class GorevRequestDTO {
         this.aciklama = aciklama;
     }
 
-    public GorevTipi getGorevTipi() {
-        return gorevTipi;
+    public Integer getPuanDegeri() {
+        return puanDegeri;
     }
 
-    public void setGorevTipi(GorevTipi gorevTipi) {
-        this.gorevTipi = gorevTipi;
+    public void setPuanDegeri(Integer puanDegeri) {
+        this.puanDegeri = puanDegeri;
     }
 
     public LocalDateTime getSonTarih() {
@@ -52,5 +46,21 @@ public class GorevRequestDTO {
 
     public void setSonTarih(LocalDateTime sonTarih) {
         this.sonTarih = sonTarih;
+    }
+
+    public GorevTipi getGorevTipi() {
+        return gorevTipi;
+    }
+
+    public void setGorevTipi(GorevTipi gorevTipi) {
+        this.gorevTipi = gorevTipi;
+    }
+
+    public String getDurum() {
+        return durum;
+    }
+
+    public void setDurum(String durum) {
+        this.durum = durum;
     }
 } 

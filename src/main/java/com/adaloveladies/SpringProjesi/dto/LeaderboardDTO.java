@@ -14,4 +14,5 @@ public class LeaderboardDTO {
     private String username;
     private Integer points;
     private Integer rank;
+    private Integer completedTaskCount;
 } 

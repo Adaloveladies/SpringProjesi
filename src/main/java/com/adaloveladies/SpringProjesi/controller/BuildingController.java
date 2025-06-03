@@ -20,20 +20,18 @@ public class BuildingController {
     @PostMapping
     public ResponseEntity<Building> binaOlustur(
             @RequestParam Long kullaniciId,
-            @RequestParam String ad,
-            @RequestParam String aciklama) {
-        Kullanici kullanici = kullaniciService.kullaniciGetir(kullaniciId)
-                .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı"));
-        Building building = buildingService.binaOlustur(kullanici, ad, aciklama);
+            @RequestParam Long sehirId) {
+        Building building = buildingService.binaOlustur(kullaniciId, sehirId);
         return ResponseEntity.ok(building);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Building> binaGuncelle(
             @PathVariable Long id,
-            @RequestParam String ad,
-            @RequestParam String aciklama) {
-        Building building = buildingService.binaGuncelle(id, ad, aciklama);
+            @RequestParam int katSayisi,
+            @RequestParam boolean tamamlandi,
+            @RequestParam boolean hasRoof) {
+        Building building = buildingService.binaGuncelle(id, katSayisi, tamamlandi, hasRoof);
         return ResponseEntity.ok(building);
     }
 
