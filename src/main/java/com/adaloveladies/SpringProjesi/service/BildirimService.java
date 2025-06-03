@@ -2,6 +2,7 @@ package com.adaloveladies.SpringProjesi.service;
 
 import com.adaloveladies.SpringProjesi.exception.ResourceNotFoundException;
 import com.adaloveladies.SpringProjesi.model.Bildirim;
+import com.adaloveladies.SpringProjesi.model.Gorev;
 import com.adaloveladies.SpringProjesi.model.Kullanici;
 import com.adaloveladies.SpringProjesi.repository.BildirimRepository;
 import lombok.RequiredArgsConstructor;
@@ -50,5 +51,23 @@ public class BildirimService {
         List<Bildirim> bildirimler = bildirimRepository.findByKullaniciAndOkunduFalse(kullanici);
         bildirimler.forEach(bildirim -> bildirim.setOkundu(true));
         bildirimRepository.saveAll(bildirimler);
+    }
+
+    public void gorevOlusturulduBildirimiGonder(Kullanici kullanici, Gorev gorev) {
+        Bildirim bildirim = new Bildirim();
+        bildirim.setKullanici(kullanici);
+        bildirim.setBaslik("Yeni Görev Oluşturuldu");
+        bildirim.setMesaj(gorev.getBaslik() + " görevi oluşturuldu.");
+        bildirim.setTip(Bildirim.BildirimTipi.GOREV);
+        bildirimRepository.save(bildirim);
+    }
+
+    public void gorevTamamlandiBildirimiGonder(Kullanici kullanici, Gorev gorev) {
+        Bildirim bildirim = new Bildirim();
+        bildirim.setKullanici(kullanici);
+        bildirim.setBaslik("Görev Tamamlandı");
+        bildirim.setMesaj(gorev.getBaslik() + " görevi tamamlandı. " + gorev.getPuanDegeri() + " puan kazandınız!");
+        bildirim.setTip(Bildirim.BildirimTipi.GOREV);
+        bildirimRepository.save(bildirim);
     }
 } 

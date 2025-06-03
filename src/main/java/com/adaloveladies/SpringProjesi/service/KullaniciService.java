@@ -91,10 +91,9 @@ public class KullaniciService {
     }
 
     public void deleteKullanici(Long id) {
-        if (!kullaniciRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Kullanıcı bulunamadı: " + id);
-        }
-        kullaniciRepository.deleteById(id);
+        Kullanici kullanici = kullaniciRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Kullanıcı bulunamadı: " + id));
+        kullaniciRepository.delete(kullanici);
     }
 
     public List<KullaniciResponseDTO> getAllKullanicilar() {

@@ -2,7 +2,6 @@ package com.adaloveladies.SpringProjesi.service;
 
 import com.adaloveladies.SpringProjesi.model.Istatistik;
 import com.adaloveladies.SpringProjesi.model.Kullanici;
-import com.adaloveladies.SpringProjesi.model.TaskStatus;
 import com.adaloveladies.SpringProjesi.repository.IstatistikRepository;
 import com.adaloveladies.SpringProjesi.repository.GorevRepository;
 import com.adaloveladies.SpringProjesi.repository.RozetRepository;
@@ -32,7 +31,7 @@ public class IstatistikService {
     @CacheEvict(value = "istatistikler", key = "#kullanici.id")
     public void istatistikleriGuncelle(Kullanici kullanici) {
         Istatistik istatistik = getKullaniciIstatistikleri(kullanici);
-        istatistik.setTamamlananGorevSayisi((int) gorevRepository.countByKullaniciAndDurum(kullanici, TaskStatus.TAMAMLANDI));
+        istatistik.setTamamlananGorevSayisi((int) gorevRepository.findByKullaniciIdAndTamamlandi(kullanici.getId(), true).size());
         istatistik.setToplamPuan(kullanici.getPoints());
         istatistik.setSeviye(kullanici.getLevel());
         istatistik.setBasarimSayisi((int) rozetRepository.countByKullanici(kullanici));
@@ -43,7 +42,7 @@ public class IstatistikService {
     public Map<String, Object> getGenelIstatistikler() {
         Map<String, Object> istatistikler = new HashMap<>();
         istatistikler.put("toplamKullanici", istatistikRepository.count());
-        istatistikler.put("toplamGorev", gorevRepository.countByDurum(TaskStatus.TAMAMLANDI));
+        istatistikler.put("toplamGorev", gorevRepository.count());
         istatistikler.put("toplamPuan", istatistikRepository.sumToplamPuan());
         return istatistikler;
     }
@@ -75,13 +74,13 @@ public class IstatistikService {
     }
 
     private double calculateBasariOrani(Istatistik istatistik) {
-        long toplamGorev = gorevRepository.countByKullanici(istatistik.getKullanici());
+        long toplamGorev = gorevRepository.findByKullaniciId(istatistik.getKullanici().getId()).size();
         return toplamGorev > 0 ? (double) istatistik.getTamamlananGorevSayisi() / toplamGorev * 100 : 0;
     }
 
     public Map<String, Object> getGunlukIstatistikler() {
         LocalDateTime bugun = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0);
-        long bugunTamamlananGorev = gorevRepository.countByTamamlanmaTarihiAfter(bugun);
+        long bugunTamamlananGorev = gorevRepository.findByTamamlandiAndTamamlanmaTarihiAfter(true, bugun).size();
         long bugunYeniKullanici = istatistikRepository.countByKayitTarihiAfter(bugun);
 
         return Map.of(

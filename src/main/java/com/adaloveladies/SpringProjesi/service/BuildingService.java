@@ -2,7 +2,10 @@ package com.adaloveladies.SpringProjesi.service;
 
 import com.adaloveladies.SpringProjesi.model.Building;
 import com.adaloveladies.SpringProjesi.model.Kullanici;
+import com.adaloveladies.SpringProjesi.model.Sehir;
 import com.adaloveladies.SpringProjesi.repository.BuildingRepository;
+import com.adaloveladies.SpringProjesi.repository.KullaniciRepository;
+import com.adaloveladies.SpringProjesi.repository.SehirRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,24 +18,38 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class BuildingService {
     private final BuildingRepository buildingRepository;
+    private final KullaniciRepository kullaniciRepository;
+    private final SehirRepository sehirRepository;
 
     @Transactional
-    public Building binaOlustur(Kullanici kullanici, String ad, String aciklama) {
-        Building building = Building.builder()
-                .ad(ad)
-                .aciklama(aciklama)
-                .kullanici(kullanici)
-                .build();
-        return buildingRepository.save(building);
+    public Building binaOlustur(Long kullaniciId, Long sehirId) {
+        Kullanici kullanici = kullaniciRepository.findById(kullaniciId)
+            .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı"));
+        
+        Sehir sehir = sehirRepository.findById(sehirId)
+            .orElseThrow(() -> new RuntimeException("Şehir bulunamadı"));
+
+        Building bina = new Building();
+        bina.setKullanici(kullanici);
+        bina.setSehir(sehir);
+        bina.setKatSayisi(0);
+        bina.setTamamlandi(false);
+        bina.setHasRoof(false);
+        bina.setGunlukTamamlananGorevSayisi(0);
+
+        return buildingRepository.save(bina);
     }
 
     @Transactional
-    public Building binaGuncelle(Long id, String ad, String aciklama) {
-        Building building = buildingRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Bina bulunamadı"));
-        building.setAd(ad);
-        building.setAciklama(aciklama);
-        return buildingRepository.save(building);
+    public Building binaGuncelle(Long binaId, int katSayisi, boolean tamamlandi, boolean hasRoof) {
+        Building bina = buildingRepository.findById(binaId)
+            .orElseThrow(() -> new RuntimeException("Bina bulunamadı"));
+
+        bina.setKatSayisi(katSayisi);
+        bina.setTamamlandi(tamamlandi);
+        bina.setHasRoof(hasRoof);
+
+        return buildingRepository.save(bina);
     }
 
     @Transactional
