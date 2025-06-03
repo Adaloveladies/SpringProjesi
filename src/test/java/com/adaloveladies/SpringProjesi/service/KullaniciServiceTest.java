@@ -16,15 +16,16 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.HashSet;
 import java.util.Optional;
-
+import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
-class KullaniciServiceTest {
+public class KullaniciServiceTest {
 
     @Mock
     private KullaniciRepository kullaniciRepository;
@@ -35,23 +36,27 @@ class KullaniciServiceTest {
     @Mock
     private RolRepository rolRepository;
 
+    @Mock
+    private SehirService sehirService;
+
     @InjectMocks
     private KullaniciService kullaniciService;
 
     private Kullanici testKullanici;
     private KullaniciRequestDTO testRequestDTO;
-    private Rol userRol;
+    private Set<Rol> testRoller;
 
     @BeforeEach
     void setUp() {
-        testKullanici = Kullanici.builder()
-                .id(1L)
-                .username("testuser")
-                .email("test@example.com")
-                .password("encodedPassword")
-                .points(0)
-                .level(1)
-                .build();
+        testKullanici = new Kullanici();
+        testKullanici.setId(1L);
+        testKullanici.setUsername("testuser");
+        testKullanici.setEmail("test@example.com");
+        testKullanici.setPassword("password");
+        testKullanici.setActive(true);
+        testKullanici.setPoints(100);
+        testKullanici.setLevel(1);
+        testKullanici.setCompletedTaskCount(0);
 
         testRequestDTO = KullaniciRequestDTO.builder()
                 .username("testuser")
@@ -59,23 +64,27 @@ class KullaniciServiceTest {
                 .password("password")
                 .build();
 
-        userRol = Rol.builder()
-                .id(1L)
-                .ad("ROLE_USER")
-                .build();
+        testRoller = new HashSet<>();
+        Rol userRole = new Rol();
+        userRole.setAd("ROLE_USER");
+        testRoller.add(userRole);
+        testKullanici.setRoller(testRoller);
     }
 
     @Test
     void createKullanici_Basarili() {
         when(passwordEncoder.encode(any())).thenReturn("encodedPassword");
         when(kullaniciRepository.save(any())).thenReturn(testKullanici);
-        when(rolRepository.findByAd("ROLE_USER")).thenReturn(Optional.of(userRol));
+        when(rolRepository.findByAd("ROLE_USER")).thenReturn(Optional.of(testRoller.iterator().next()));
+        when(sehirService.sehirOlustur(any())).thenReturn(null);
 
         KullaniciResponseDTO response = kullaniciService.createKullanici(testRequestDTO);
 
         assertNotNull(response);
         assertEquals(testKullanici.getUsername(), response.getUsername());
+        assertEquals(testKullanici.getEmail(), response.getEmail());
         verify(kullaniciRepository).save(any());
+        verify(sehirService).sehirOlustur(any());
     }
 
     @Test
@@ -86,6 +95,8 @@ class KullaniciServiceTest {
 
         assertNotNull(response);
         assertEquals(testKullanici.getUsername(), response.getUsername());
+        assertEquals(testKullanici.getEmail(), response.getEmail());
+        assertEquals(testKullanici.getPoints(), response.getPoints());
     }
 
     @Test
@@ -104,6 +115,7 @@ class KullaniciServiceTest {
 
         assertNotNull(response);
         assertEquals(testKullanici.getUsername(), response.getUsername());
+        assertEquals(testKullanici.getEmail(), response.getEmail());
     }
 
     @Test
@@ -116,30 +128,31 @@ class KullaniciServiceTest {
     @Test
     void deleteKullanici_Basarili() {
         when(kullaniciRepository.findById(1L)).thenReturn(Optional.of(testKullanici));
-        doNothing().when(kullaniciRepository).deleteById(1L);
+        doNothing().when(kullaniciRepository).delete(testKullanici);
 
         kullaniciService.deleteKullanici(1L);
 
-        verify(kullaniciRepository).deleteById(1L);
+        verify(kullaniciRepository).delete(testKullanici);
     }
 
     @Test
     void deleteKullanici_KullaniciBulunamadi() {
-        when(kullaniciRepository.findById(1L)).thenReturn(Optional.empty());
-
-        assertThrows(ResourceNotFoundException.class, () -> kullaniciService.deleteKullanici(1L));
-        verify(kullaniciRepository, never()).deleteById(any());
+        when(kullaniciRepository.findById(99L)).thenReturn(Optional.empty());
+        
+        assertThrows(ResourceNotFoundException.class, () -> kullaniciService.deleteKullanici(99L));
+        verify(kullaniciRepository, never()).delete(any());
     }
 
     @Test
     void addPuan_Basarili() {
         when(kullaniciRepository.findById(1L)).thenReturn(Optional.of(testKullanici));
         when(kullaniciRepository.save(any())).thenReturn(testKullanici);
+        doNothing().when(sehirService).puanEkle(any(), anyInt());
 
-        kullaniciService.addPuan(1L, 100);
+        kullaniciService.addPuan(1L, 50);
 
-        assertEquals(100, testKullanici.getPoints());
-        verify(kullaniciRepository).save(any());
+        assertEquals(150, testKullanici.getPoints());
+        verify(sehirService).puanEkle(any(), anyInt());
     }
 
     @Test
