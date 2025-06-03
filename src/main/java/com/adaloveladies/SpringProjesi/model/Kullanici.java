@@ -15,9 +15,9 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("unused")
 @Entity
 @Table(name = "kullanicilar")
-@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -68,7 +68,7 @@ public class Kullanici implements UserDetails {
 
     @OneToMany(mappedBy = "kullanici", cascade = CascadeType.ALL)
     @Builder.Default
-    private Set<Rozet> badges = new HashSet<>();
+    private Set<Rozet> rozetler = new HashSet<>();
 
     @OneToOne(mappedBy = "kullanici", cascade = CascadeType.ALL)
     private Istatistik statistics;
@@ -240,11 +240,55 @@ public class Kullanici implements UserDetails {
         this.completedTaskCount = tamamlananGorevSayisi;
     }
 
-    public void setRoller(Set<Rol> roller) {
-        this.roller = roller;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public Set<Rol> getRoller() {
         return roller;
+    }
+
+    public void setRoller(Set<Rol> roller) {
+        this.roller = roller;
+    }
+
+    public Set<Task> getTasks() {
+        return tasks;
+    }
+
+    public void setTasks(Set<Task> tasks) {
+        this.tasks = tasks;
+    }
+
+    public Set<Sehir> getCities() {
+        return cities;
+    }
+
+    public void setCities(Set<Sehir> cities) {
+        this.cities = cities;
+    }
+
+    public Set<Bildirim> getNotifications() {
+        return notifications;
+    }
+
+    public void setNotifications(Set<Bildirim> notifications) {
+        this.notifications = notifications;
+    }
+
+    public Set<Rozet> getRozetler() {
+        return rozetler;
+    }
+
+    public void setRozetler(Set<Rozet> rozetler) {
+        this.rozetler = rozetler;
+    }
+
+    public Istatistik getStatistics() {
+        return statistics;
+    }
+
+    public void setStatistics(Istatistik statistics) {
+        this.statistics = statistics;
     }
 } 

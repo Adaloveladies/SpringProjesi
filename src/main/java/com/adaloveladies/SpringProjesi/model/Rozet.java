@@ -20,10 +20,18 @@ public class Rozet {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "kullanici_id", nullable = false)
+    private Kullanici kullanici;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private RozetTipi tip;
+
     @Column(nullable = false)
     private String ad;
 
-    @Column(nullable = false)
+    @Column(length = 1000)
     private String aciklama;
 
     @Column(nullable = false)
@@ -32,16 +40,8 @@ public class Rozet {
     @Column(nullable = false)
     private int puanDegeri;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private RozetTipi tip;
-
     @Column(nullable = false)
     private LocalDateTime kazanilmaTarihi;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "kullanici_id", nullable = false)
-    private Kullanici kullanici;
 
     @PrePersist
     protected void onCreate() {
@@ -49,13 +49,12 @@ public class Rozet {
     }
 
     public enum RozetTipi {
-        GOREV_MASTER,
-        SEVIYE_MASTER,
-        PUAN_MASTER,
-        OZEL,
         PUAN,
         SEVIYE,
-        GOREV_SAYISI
+        GOREV_SAYISI,
+        GOREV_USTASI,
+        GOREV_EFENDISI,
+        OZEL
     }
 
     public Long getId() {
