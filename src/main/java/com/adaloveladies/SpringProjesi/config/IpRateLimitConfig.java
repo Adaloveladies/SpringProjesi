@@ -81,8 +81,8 @@ public class IpRateLimitConfig {
     public long getResetTime(String ip) {
         Bucket bucket = resolveIpBucket(ip);
         if (bucket == null) {
-            return System.currentTimeMillis() + durationInSeconds * 1000;
+            return System.currentTimeMillis() + durationInSeconds * 1000L;
         }
-        return lastAccessTime.get(ip) + durationInSeconds * 1000;
+        return lastAccessTime.getOrDefault(ip, System.currentTimeMillis()) + durationInSeconds * 1000L;
     }
 } 
