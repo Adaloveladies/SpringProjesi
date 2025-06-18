@@ -10,12 +10,42 @@ springdoc:
   packages-to-scan: com.adaloveladies.SpringProjesi.controller
   paths-to-match: /api/**
 
+jwt:
+  secret: your-secret-key-here-make-it-very-long-and-secure-at-least-256-bits
+  expiration: 86400000
+
+app:
+  jwtSecret: Yb2k3n8pQwErTyUiOpAsDfGhJkLzXcVbNmQwErTyUiOpAsDfGhJkLzXcVbNmQwErTyUiOpAsDfGhJkLzXcVbNmQwErTyUiOpAsDfGhJkLzXcVbNmQwEr
+  jwtExpirationInMs: 3600000
+
 spring:
+  application:
+    name: SpringProjesi
+  datasource:
+    url: jdbc:mysql://localhost:3306/springprojesi?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: root
+    password: 5643Mcbe...6
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+    open-in-view: false
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: 
+      database: 0
   mail:
     host: smtp.gmail.com
     port: 587
-    username: ${MAIL_USERNAME}
-    password: ${MAIL_PASSWORD}
+    username: your-email@gmail.com
+    password: your-app-password
     properties:
       mail:
         smtp:
@@ -27,4 +57,58 @@ spring:
     prefix: classpath:/templates/
     suffix: .html
     encoding: UTF-8
-    mode: HTML 
+    mode: HTML
+  redis:
+    host: localhost
+    port: 6379
+    timeout: 2000ms
+
+server:
+  port: 8083
+
+logging:
+  level:
+    com.adaloveladies.SpringProjesi: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.web: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/application.log
+    max-size: 10MB
+    max-history: 10
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+  health:
+    redis:
+      enabled: false
+    mail:
+      enabled: false
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    tags:
+      application: SpringProjesi
+
+rate:
+  limit:
+    requests: 50
+    duration: 60
+    cleanup:
+      period: 3600
+
+cors:
+  allowed-origins: "*"
+  allowed-methods: "*"
+  allowed-headers: "*" 
