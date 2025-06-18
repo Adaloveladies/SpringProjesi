@@ -1,0 +1,705 @@
+{
+	"info": {
+		"_postman_id": "spring-projesi-api",
+		"name": "Spring Projesi API Collection",
+		"description": "Spring Boot projesi için kapsamlı API test koleksiyonu",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "🔐 Kimlik Doğrulama",
+			"item": [
+				{
+					"name": "Kullanıcı Kaydı",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"testuser\",\n    \"email\": \"test@example.com\",\n    \"password\": \"123456\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Kullanıcı Girişi",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"testuser\",\n    \"password\": \"123456\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "👥 Kullanıcı Yönetimi",
+			"item": [
+				{
+					"name": "Tüm Kullanıcıları Listele",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/kullanicilar",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"kullanicilar"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Kullanıcı Detayı Getir",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/kullanicilar/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"kullanicilar",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Kullanıcı Güncelle",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"updateduser\",\n    \"email\": \"updated@example.com\",\n    \"password\": \"newpassword123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/kullanicilar/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"kullanicilar",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Kullanıcıya Puan Ekle",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/kullanicilar/1/puan?puan=100",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"kullanicilar",
+								"1",
+								"puan"
+							],
+							"query": [
+								{
+									"key": "puan",
+									"value": "100"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "📋 Görev Yönetimi",
+			"item": [
+				{
+					"name": "Yeni Görev Oluştur",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"baslik\": \"Test Görevi\",\n    \"aciklama\": \"Bu bir test görevidir\",\n    \"gorevTipi\": \"GUNLUK\",\n    \"puanDegeri\": 50,\n    \"sonTarih\": \"2024-12-31T23:59:59\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/gorevler",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"gorevler"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Görevleri Listele",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/gorevler",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"gorevler"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Görev Detayı Getir",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/gorevler/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"gorevler",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Görev Güncelle",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"baslik\": \"Güncellenmiş Görev\",\n    \"aciklama\": \"Bu görev güncellenmiştir\",\n    \"gorevTipi\": \"HAFTALIK\",\n    \"puanDegeri\": 75,\n    \"sonTarih\": \"2024-12-31T23:59:59\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/gorevler/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"gorevler",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Görevi Tamamla",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/gorevler/1/tamamla",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"gorevler",
+								"1",
+								"tamamla"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Görev Sil",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/gorevler/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"gorevler",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "🏙️ Şehir Yönetimi",
+			"item": [
+				{
+					"name": "Şehir Oluştur",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"İstanbul\",\n    \"description\": \"Türkiye'nin en büyük şehri\",\n    \"level\": 1,\n    \"pointValue\": 100\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/sehirler",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"sehirler"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Şehirleri Listele",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/sehirler",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"sehirler"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "🏗️ Bina Yönetimi",
+			"item": [
+				{
+					"name": "Bina Oluştur",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"katSayisi\": 5,\n    \"gerekliSeviye\": 1,\n    \"gunlukTamamlananGorevSayisi\": 0,\n    \"hasRoof\": true,\n    \"tamamlandi\": false,\n    \"sehirId\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/buildings",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"buildings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Binaları Listele",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/buildings",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"buildings"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "📊 İstatistikler",
+			"item": [
+				{
+					"name": "Kullanıcı İstatistikleri",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/istatistikler/kullanici/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"istatistikler",
+								"kullanici",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "🏆 Liderlik Tablosu",
+			"item": [
+				{
+					"name": "Liderlik Tablosu",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/leaderboard",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"leaderboard"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "🔔 Bildirimler",
+			"item": [
+				{
+					"name": "Bildirimleri Listele",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/bildirimler",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"bildirimler"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Bildirimi Okundu İşaretle",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/bildirimler/1/okundu",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"bildirimler",
+								"1",
+								"okundu"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "📝 Audit Log",
+			"item": [
+				{
+					"name": "Audit Logları Listele",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/audit-logs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"audit-logs"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "🔧 Sistem Durumu",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/actuator/health",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"actuator",
+								"health"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Sistem Bilgileri",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/actuator/info",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"actuator",
+								"info"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Metrikler",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/actuator/metrics",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"actuator",
+								"metrics"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Login response'undan token'ı otomatik olarak al",
+					"if (pm.response.code === 200) {",
+					"    const responseJson = pm.response.json();",
+					"    if (responseJson.token) {",
+					"        pm.environment.set('token', responseJson.token);",
+					"        console.log('Token kaydedildi:', responseJson.token);",
+					"    }",
+					"}"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8081",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		}
+	]
+} 

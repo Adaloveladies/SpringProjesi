@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spring Projesi - Ana Sayfa</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        .status {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #4CAF50;
+        }
+        .api-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+        }
+        .api-link {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 15px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: white;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .api-link:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            opacity: 0.8;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Spring Projesi API</h1>
+        
+        <div class="status">
+            <h3>✅ Sistem Durumu</h3>
+            <p>Uygulama başarıyla çalışıyor!</p>
+            <p><strong>Port:</strong> 8081</p>
+            <p><strong>Zaman:</strong> <span th:text="${#dates.format(#dates.createNow(), 'dd/MM/yyyy HH:mm:ss')}">Şu an</span></p>
+        </div>
+
+        <div class="api-links">
+            <a href="/swagger-ui.html" class="api-link" target="_blank">
+                📚 <strong>Swagger UI</strong><br>
+                API Dokümantasyonu
+            </a>
+            
+            <a href="/actuator/health" class="api-link" target="_blank">
+                💚 <strong>Health Check</strong><br>
+                Sistem Sağlığı
+            </a>
+            
+            <a href="/actuator/info" class="api-link" target="_blank">
+                ℹ️ <strong>System Info</strong><br>
+                Sistem Bilgileri
+            </a>
+            
+            <a href="/actuator/metrics" class="api-link" target="_blank">
+                📊 <strong>Metrics</strong><br>
+                Performans Metrikleri
+            </a>
+        </div>
+
+        <div class="footer">
+            <p>Spring Boot 3.2.3 | Java 17 | MySQL | Redis</p>
+            <p>Geliştirici: Adaloveladies Team</p>
+        </div>
+    </div>
+</body>
+</html> 
