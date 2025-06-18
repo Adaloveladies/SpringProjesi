@@ -1,17 +1,19 @@
 package com.adaloveladies.SpringProjesi.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
 @Entity
 @Table(name = "roller")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Getter
+@Setter
 public class Rol {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,6 +30,10 @@ public class Rol {
 
     public void setName(String name) {
         this.ad = name;
+    }
+
+    public void setAd(String ad) {
+        this.ad = ad;
     }
 
     public String getDescription() {

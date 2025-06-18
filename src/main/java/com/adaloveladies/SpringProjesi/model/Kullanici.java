@@ -1,19 +1,12 @@
 package com.adaloveladies.SpringProjesi.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
+import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @SuppressWarnings("unused")
 @Entity
@@ -21,7 +14,9 @@ import java.util.stream.Collectors;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Kullanici implements UserDetails {
+@Getter
+@Setter
+public class Kullanici {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,14 +31,21 @@ public class Kullanici implements UserDetails {
     @Column(nullable = false)
     private String password;
 
-    private Integer points;
-    private Integer level;
-    private Integer completedTaskCount;
+    @Builder.Default
+    private Integer points = 0;
+    
+    @Builder.Default
+    private Integer level = 1;
+    
+    @Builder.Default
+    private Integer completedTaskCount = 0;
 
     @Column(name = "creation_date")
-    private LocalDateTime creationDate;
+    @Builder.Default
+    private LocalDateTime creationDate = LocalDateTime.now();
 
-    private boolean active;
+    @Builder.Default
+    private boolean active = true;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
@@ -51,133 +53,49 @@ public class Kullanici implements UserDetails {
         joinColumns = @JoinColumn(name = "kullanici_id"),
         inverseJoinColumns = @JoinColumn(name = "rol_id")
     )
-    @Builder.Default
+    @JsonIgnore
     private Set<Rol> roller = new HashSet<>();
 
     @OneToMany(mappedBy = "kullanici", cascade = CascadeType.ALL)
-    @Builder.Default
+    @JsonIgnore
     private Set<Task> tasks = new HashSet<>();
 
     @OneToMany(mappedBy = "kullanici", cascade = CascadeType.ALL)
-    @Builder.Default
+    @JsonIgnore
     private Set<Sehir> cities = new HashSet<>();
 
     @OneToMany(mappedBy = "kullanici", cascade = CascadeType.ALL)
-    @Builder.Default
+    @JsonIgnore
     private Set<Bildirim> notifications = new HashSet<>();
 
     @OneToMany(mappedBy = "kullanici", cascade = CascadeType.ALL)
-    @Builder.Default
+    @JsonIgnore
     private Set<Rozet> rozetler = new HashSet<>();
 
     @OneToOne(mappedBy = "kullanici", cascade = CascadeType.ALL)
+    @JsonIgnore
     private Istatistik statistics;
 
     @PrePersist
     protected void onCreate() {
-        creationDate = LocalDateTime.now();
-        active = true;
-        points = 0;
-        level = 1;
-        completedTaskCount = 0;
+        if (creationDate == null) {
+            creationDate = LocalDateTime.now();
+        }
+        if (!active) {
+            active = true;
+        }
+        if (points == null) {
+            points = 0;
+        }
+        if (level == null) {
+            level = 1;
+        }
+        if (completedTaskCount == null) {
+            completedTaskCount = 0;
+        }
     }
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return roller.stream()
-                .map(rol -> new SimpleGrantedAuthority(rol.getName()))
-                .collect(Collectors.toSet());
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return active;
-    }
-
-    @Override
-    public String getPassword() {
-        return password;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public Integer getPoints() {
-        return points;
-    }
-
-    public void setPoints(Integer points) {
-        this.points = points;
-    }
-
-    public Integer getLevel() {
-        return level;
-    }
-
-    public void setLevel(Integer level) {
-        this.level = level;
-    }
-
-    public Integer getCompletedTaskCount() {
-        return completedTaskCount;
-    }
-
-    public void setCompletedTaskCount(Integer completedTaskCount) {
-        this.completedTaskCount = completedTaskCount;
-    }
-
-    public LocalDateTime getCreationDate() {
-        return creationDate;
-    }
-
-    public void setCreationDate(LocalDateTime creationDate) {
-        this.creationDate = creationDate;
-    }
-
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
-    }
-
+    // Business logic methods
     public void addPoints(int points) {
         this.points += points;
         checkLevel();
@@ -198,12 +116,6 @@ public class Kullanici implements UserDetails {
         return roller.stream().anyMatch(rol -> rol.getName().equals(roleName));
     }
 
-    public Set<String> getRolAdlari() {
-        return roller.stream()
-                .map(Rol::getName)
-                .collect(Collectors.toSet());
-    }
-
     public boolean isAdmin() {
         return hasRole("ROLE_ADMIN");
     }
@@ -216,79 +128,12 @@ public class Kullanici implements UserDetails {
         return hasRole("ROLE_USER");
     }
 
-    public Integer getSeviye() {
-        return level;
-    }
-
-    public void setSeviye(Integer seviye) {
-        this.level = seviye;
-    }
-
-    public String getKullaniciAdi() {
-        return username;
-    }
-
-    public void setKullaniciAdi(String kullaniciAdi) {
-        this.username = kullaniciAdi;
-    }
-
-    public Integer getTamamlananGorevSayisi() {
-        return completedTaskCount;
-    }
-
-    public void setTamamlananGorevSayisi(Integer tamamlananGorevSayisi) {
-        this.completedTaskCount = tamamlananGorevSayisi;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
+    @JsonIgnore
     public Set<Rol> getRoller() {
         return roller;
     }
 
     public void setRoller(Set<Rol> roller) {
         this.roller = roller;
-    }
-
-    public Set<Task> getTasks() {
-        return tasks;
-    }
-
-    public void setTasks(Set<Task> tasks) {
-        this.tasks = tasks;
-    }
-
-    public Set<Sehir> getCities() {
-        return cities;
-    }
-
-    public void setCities(Set<Sehir> cities) {
-        this.cities = cities;
-    }
-
-    public Set<Bildirim> getNotifications() {
-        return notifications;
-    }
-
-    public void setNotifications(Set<Bildirim> notifications) {
-        this.notifications = notifications;
-    }
-
-    public Set<Rozet> getRozetler() {
-        return rozetler;
-    }
-
-    public void setRozetler(Set<Rozet> rozetler) {
-        this.rozetler = rozetler;
-    }
-
-    public Istatistik getStatistics() {
-        return statistics;
-    }
-
-    public void setStatistics(Istatistik statistics) {
-        this.statistics = statistics;
     }
 } 

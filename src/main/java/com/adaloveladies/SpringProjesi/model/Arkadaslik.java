@@ -1,5 +1,6 @@
 package com.adaloveladies.SpringProjesi.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -27,10 +28,12 @@ public class Arkadaslik {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "gonderen_id", nullable = false)
+    @JsonIgnore
     private Kullanici gonderen;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "alan_id", nullable = false)
+    @JsonIgnore
     private Kullanici alan;
 
     @Enumerated(EnumType.STRING)

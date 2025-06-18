@@ -1,15 +1,23 @@
 package com.adaloveladies.SpringProjesi.model;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "istatistikler")
-@Data
-@Builder
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@Builder
 public class Istatistik {
     
     @Id
@@ -18,6 +26,7 @@ public class Istatistik {
     
     @OneToOne
     @JoinColumn(name = "kullanici_id")
+    @JsonIgnore
     private Kullanici kullanici;
     
     @Column(name = "tamamlanan_gorev_sayisi")
@@ -52,18 +61,6 @@ public class Istatistik {
     
     @Column(nullable = false)
     private LocalDateTime kayitTarihi;
-    
-    public Istatistik(Kullanici kullanici) {
-        this.kullanici = kullanici;
-        this.toplamGorevSayisi = 0;
-        this.tamamlananGorevSayisi = 0;
-        this.gunlukGorevSayisi = 0;
-        this.haftalikGorevSayisi = 0;
-        this.aylikGorevSayisi = 0;
-        this.toplamPuan = 0;
-        this.kazanilanRozetSayisi = 0;
-        this.kayitTarihi = LocalDateTime.now();
-    }
     
     public double getBasariOrani() {
         if (toplamGorevSayisi == 0) {
@@ -197,5 +194,21 @@ public class Istatistik {
 
     public void setKayitTarihi(LocalDateTime kayitTarihi) {
         this.kayitTarihi = kayitTarihi;
+    }
+
+    public Integer getSeviye() {
+        return seviye;
+    }
+
+    public void setSeviye(Integer seviye) {
+        this.seviye = seviye;
+    }
+
+    public Integer getBasarimSayisi() {
+        return basarimSayisi;
+    }
+
+    public void setBasarimSayisi(Integer basarimSayisi) {
+        this.basarimSayisi = basarimSayisi;
     }
 } 

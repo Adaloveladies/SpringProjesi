@@ -1,14 +1,21 @@
 package com.adaloveladies.SpringProjesi.model;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
-@Data
-@Builder
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@Builder
 @Table(name = "rozetler", indexes = {
     @Index(name = "idx_rozet_kullanici", columnList = "kullanici_id"),
     @Index(name = "idx_rozet_tip", columnList = "tip"),
@@ -22,6 +29,7 @@ public class Rozet {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "kullanici_id", nullable = false)
+    @JsonIgnore
     private Kullanici kullanici;
 
     @Enumerated(EnumType.STRING)

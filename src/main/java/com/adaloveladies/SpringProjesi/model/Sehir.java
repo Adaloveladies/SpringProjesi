@@ -3,7 +3,12 @@ package com.adaloveladies.SpringProjesi.model;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -13,10 +18,13 @@ import java.util.Set;
  * Şehir modeli
  * Kullanıcıların oluşturduğu şehirleri temsil eder
  */
+@SuppressWarnings("unused")
 @Entity
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
 @Table(name = "sehirler")
 public class Sehir {
 
@@ -50,10 +58,12 @@ public class Sehir {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "kullanici_id", nullable = false)
+    @JsonIgnore
     private Kullanici kullanici;
 
     @OneToMany(mappedBy = "sehir", cascade = CascadeType.ALL)
     @Builder.Default
+    @JsonIgnore
     private Set<Building> buildings = new HashSet<>();
 
     @PrePersist

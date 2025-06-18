@@ -3,19 +3,23 @@ package com.adaloveladies.SpringProjesi.model;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * Görev modeli
  * Kullanıcıların oluşturduğu görevleri temsil eder
  */
-@Data
 @Entity
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
 @Table(name = "gorevler")
 public class Task {
 
@@ -50,6 +54,7 @@ public class Task {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "kullanici_id", nullable = false)
+    @JsonIgnore
     private Kullanici kullanici;
 
     @Enumerated(EnumType.STRING)
@@ -58,10 +63,12 @@ public class Task {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sehir_id")
+    @JsonIgnore
     private Sehir sehir;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "building_id")
+    @JsonIgnore
     private Building building;
 
     @PrePersist
