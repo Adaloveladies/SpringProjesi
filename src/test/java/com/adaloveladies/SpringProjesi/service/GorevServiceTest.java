@@ -20,7 +20,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.time.temporal.TemporalAccessor;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -51,35 +50,43 @@ public class GorevServiceTest {
         kullaniciRepository.deleteAll();
         sehirRepository.deleteAll();
 
-        Sehir testSehir = new Sehir();
-        testSehir.setName("Test Şehir");
-        testSehir.setDescription("Test Şehir Açıklaması");
-        testSehir.setActive(true);
-        testSehir.setLevel(1);
-        testSehir.setPoints(0);
-        testSehir.setPointValue(10);
-        testSehir.setCreationDate(LocalDateTime.now());
-
-        testKullanici = new Kullanici();
-        testKullanici.setUsername("test_user");
-        testKullanici.setEmail("test@example.com");
-        testKullanici.setPassword("testpass");
-        testKullanici.setPoints(0);
-        testKullanici.setCompletedTaskCount(0);
+        // Test kullanıcısını oluştur
+        testKullanici = Kullanici.builder()
+            .username("test_user")
+            .email("test@example.com")
+            .password("testpass")
+            .points(0)
+            .level(1)
+            .completedTaskCount(0)
+            .active(true)
+            .creationDate(LocalDateTime.now())
+            .build();
         testKullanici = kullaniciRepository.save(testKullanici);
 
-        testSehir.setKullanici(testKullanici);
+        // Test şehrini oluştur
+        Sehir testSehir = Sehir.builder()
+            .name("Test Şehir")
+            .description("Test Şehir Açıklaması")
+            .active(true)
+            .level(1)
+            .points(0)
+            .pointValue(10)
+            .creationDate(LocalDateTime.now())
+            .kullanici(testKullanici)
+            .build();
         testSehir = sehirRepository.save(testSehir);
+
+        // Kullanıcının şehirlerini güncelle
         testKullanici.getCities().add(testSehir);
         testKullanici = kullaniciRepository.save(testKullanici);
 
+        // Test görev DTO'sunu oluştur
         testGorevDTO = new GorevRequestDTO();
         testGorevDTO.setBaslik("Test Görev");
         testGorevDTO.setAciklama("Test Görev Açıklaması");
         testGorevDTO.setPuanDegeri(10);
         testGorevDTO.setSonTarih(LocalDateTime.now().plusDays(1));
         testGorevDTO.setGorevTipi(GorevTipi.GUNLUK);
-        testGorevDTO.setDurum("BEKLEMEDE");
     }
 
     @Test
