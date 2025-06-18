@@ -30,7 +30,7 @@ public class RozetService {
             yeniTip = Rozet.RozetTipi.PUAN;
             rozetAdi = "Puan Ustası";
             rozetAciklama = "100 puanına ulaştın!";
-        } else if (kullanici.getSeviye() >= 5 && !rozetRepository.existsByKullaniciAndTip(kullanici, Rozet.RozetTipi.SEVIYE)) {
+        } else if (kullanici.getLevel() >= 5 && !rozetRepository.existsByKullaniciAndTip(kullanici, Rozet.RozetTipi.SEVIYE)) {
             yeniTip = Rozet.RozetTipi.SEVIYE;
             rozetAdi = "Seviye Ustası";
             rozetAciklama = "5. seviyeye ulaştın!";
@@ -68,7 +68,7 @@ public class RozetService {
 
     @Transactional
     public void gorevTamamlandiKontrol(Kullanici kullanici) {
-        int tamamlananGorevSayisi = kullanici.getTamamlananGorevSayisi();
+        int tamamlananGorevSayisi = kullanici.getCompletedTaskCount();
         
         boolean ustasiVar = kullanici.getRozetler().stream()
             .anyMatch(r -> r.getTip() == Rozet.RozetTipi.GOREV_USTASI);

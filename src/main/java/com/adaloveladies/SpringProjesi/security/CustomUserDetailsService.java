@@ -27,9 +27,17 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("Kullanıcı bulunamadı: " + username));
 
         List<SimpleGrantedAuthority> authorities = kullanici.getRoller().stream()
-                .map(rol -> new SimpleGrantedAuthority("ROLE_" + rol.getName()))
+                .map(rol -> new SimpleGrantedAuthority(rol.getAd()))
                 .collect(Collectors.toList());
 
-        return new User(kullanici.getUsername(), kullanici.getPassword(), authorities);
+        return User.builder()
+                .username(kullanici.getUsername())
+                .password(kullanici.getPassword())
+                .authorities(authorities)
+                .accountExpired(false)
+                .accountLocked(false)
+                .credentialsExpired(false)
+                .disabled(!kullanici.isActive())
+                .build();
     }
 } 

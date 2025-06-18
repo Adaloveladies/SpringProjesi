@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -203,6 +204,11 @@ public class KullaniciService {
         Kullanici kullanici = kullaniciRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı"));
 
+        // Roller setini manuel olarak oluştur
+        Set<String> rolAdlari = kullanici.getRoller().stream()
+                .map(Rol::getName)
+                .collect(Collectors.toSet());
+
         return KullaniciResponseDTO.builder()
                 .id(kullanici.getId())
                 .username(kullanici.getUsername())
@@ -212,11 +218,16 @@ public class KullaniciService {
                 .completedTaskCount(kullanici.getCompletedTaskCount())
                 .creationDate(kullanici.getCreationDate())
                 .active(kullanici.isActive())
-                .roles(kullanici.getRolAdlari())
+                .roles(rolAdlari)
                 .build();
     }
 
     private KullaniciResponseDTO mapToResponseDTO(Kullanici kullanici) {
+        // Roller setini manuel olarak oluştur
+        Set<String> rolAdlari = kullanici.getRoller().stream()
+                .map(Rol::getName)
+                .collect(Collectors.toSet());
+
         return KullaniciResponseDTO.builder()
                 .id(kullanici.getId())
                 .username(kullanici.getUsername())
@@ -226,7 +237,7 @@ public class KullaniciService {
                 .completedTaskCount(kullanici.getCompletedTaskCount())
                 .creationDate(kullanici.getCreationDate())
                 .active(kullanici.isActive())
-                .roles(kullanici.getRolAdlari())
+                .roles(rolAdlari)
                 .build();
     }
 } 

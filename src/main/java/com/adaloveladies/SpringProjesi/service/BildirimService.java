@@ -54,20 +54,26 @@ public class BildirimService {
     }
 
     public void gorevOlusturulduBildirimiGonder(Kullanici kullanici, Gorev gorev) {
-        Bildirim bildirim = new Bildirim();
-        bildirim.setKullanici(kullanici);
-        bildirim.setBaslik("Yeni Görev Oluşturuldu");
-        bildirim.setMesaj(gorev.getBaslik() + " görevi oluşturuldu.");
-        bildirim.setTip(Bildirim.BildirimTipi.GOREV);
+        Bildirim bildirim = Bildirim.builder()
+            .kullanici(kullanici)
+            .baslik("Yeni Görev Oluşturuldu")
+            .mesaj(gorev.getBaslik() + " görevi oluşturuldu.")
+            .tip(Bildirim.BildirimTipi.GOREV)
+            .okundu(false)
+            .olusturmaTarihi(LocalDateTime.now())
+            .build();
         bildirimRepository.save(bildirim);
     }
 
     public void gorevTamamlandiBildirimiGonder(Kullanici kullanici, Gorev gorev) {
-        Bildirim bildirim = new Bildirim();
-        bildirim.setKullanici(kullanici);
-        bildirim.setBaslik("Görev Tamamlandı");
-        bildirim.setMesaj(gorev.getBaslik() + " görevi tamamlandı. " + gorev.getPuanDegeri() + " puan kazandınız!");
-        bildirim.setTip(Bildirim.BildirimTipi.GOREV);
+        Bildirim bildirim = Bildirim.builder()
+            .kullanici(kullanici)
+            .baslik("Görev Tamamlandı")
+            .mesaj(gorev.getBaslik() + " görevi tamamlandı. " + gorev.getPuanDegeri() + " puan kazandınız!")
+            .tip(Bildirim.BildirimTipi.GOREV)
+            .okundu(false)
+            .olusturmaTarihi(LocalDateTime.now())
+            .build();
         bildirimRepository.save(bildirim);
     }
 } 

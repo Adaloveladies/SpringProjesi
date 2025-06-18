@@ -56,16 +56,17 @@ public class GorevService {
             throw new BusinessException("Günlük görev limitine ulaşıldı");
         }
 
-        Gorev gorev = new Gorev();
-        gorev.setBaslik(requestDTO.getBaslik());
-        gorev.setAciklama(requestDTO.getAciklama());
-        gorev.setPuanDegeri(requestDTO.getPuanDegeri());
-        gorev.setSonTarih(requestDTO.getSonTarih());
-        gorev.setKullanici(kullanici);
-        gorev.setTamamlandi(false);
-        gorev.setOlusturmaTarihi(LocalDateTime.now());
-        gorev.setDurum("BEKLEMEDE");
-        gorev.setGorevTipi(requestDTO.getGorevTipi());
+        Gorev gorev = Gorev.builder()
+            .baslik(requestDTO.getBaslik())
+            .aciklama(requestDTO.getAciklama())
+            .puanDegeri(requestDTO.getPuanDegeri())
+            .sonTarih(requestDTO.getSonTarih())
+            .kullanici(kullanici)
+            .tamamlandi(false)
+            .olusturmaTarihi(LocalDateTime.now())
+            .durum("BEKLEMEDE")
+            .gorevTipi(requestDTO.getGorevTipi())
+            .build();
         
         // Kullanıcının şehirlerinden ilkini al ve göreve ata
         if (!kullanici.getCities().isEmpty()) {

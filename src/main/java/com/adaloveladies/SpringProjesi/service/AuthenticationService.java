@@ -28,7 +28,7 @@ public class AuthenticationService {
                     .orElseThrow(() -> new BadCredentialsException("Geçersiz kullanıcı adı veya şifre"));
 
             // Hesabın aktif olup olmadığını kontrol et
-            if (!kullanici.isEnabled()) {
+            if (!kullanici.isActive()) {
                 throw new BadCredentialsException("Hesabınız devre dışı bırakılmış");
             }
 

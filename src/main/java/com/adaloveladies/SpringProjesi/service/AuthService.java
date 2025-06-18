@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -43,11 +44,16 @@ public class AuthService {
         Kullanici kullanici = kullaniciRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı"));
 
+        // Roller setini manuel olarak oluştur
+        Set<String> rolAdlari = kullanici.getRoller().stream()
+                .map(Rol::getName)
+                .collect(Collectors.toSet());
+
         return AuthResponseDTO.builder()
                 .token(token)
                 .username(kullanici.getUsername())
                 .email(kullanici.getEmail())
-                .roller(kullanici.getRolAdlari())
+                .roller(rolAdlari)
                 .build();
     }
 
@@ -85,11 +91,16 @@ public class AuthService {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String token = jwtTokenProvider.generateToken(authentication);
 
+        // Roller setini manuel olarak oluştur
+        Set<String> rolAdlari = roller.stream()
+                .map(Rol::getName)
+                .collect(Collectors.toSet());
+
         return AuthResponseDTO.builder()
                 .token(token)
                 .username(kullanici.getUsername())
                 .email(kullanici.getEmail())
-                .roller(kullanici.getRolAdlari())
+                .roller(rolAdlari)
                 .build();
     }
 } 

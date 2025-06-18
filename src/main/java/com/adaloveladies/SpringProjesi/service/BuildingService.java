@@ -29,13 +29,15 @@ public class BuildingService {
         Sehir sehir = sehirRepository.findById(sehirId)
             .orElseThrow(() -> new RuntimeException("Şehir bulunamadı"));
 
-        Building bina = new Building();
-        bina.setKullanici(kullanici);
-        bina.setSehir(sehir);
-        bina.setKatSayisi(0);
-        bina.setTamamlandi(false);
-        bina.setHasRoof(false);
-        bina.setGunlukTamamlananGorevSayisi(0);
+        Building bina = Building.builder()
+            .kullanici(kullanici)
+            .sehir(sehir)
+            .katSayisi(0)
+            .tamamlandi(false)
+            .hasRoof(false)
+            .gunlukTamamlananGorevSayisi(0)
+            .gerekliSeviye(1)
+            .build();
 
         return buildingRepository.save(bina);
     }
